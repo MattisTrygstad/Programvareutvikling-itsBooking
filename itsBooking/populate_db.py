@@ -6,9 +6,9 @@ management.call_command('flush', verbosity=0, interactive=False)
 print("!----DB flushed----!")
 
 # setup base data
-g1 = Group.objects.create(name='student')
-g2 = Group.objects.create(name='studass')
-g3 = Group.objects.create(name='emne_ansvarlig')
+g1 = Group.objects.create(name='students')
+g2 = Group.objects.create(name='assistants')
+g3 = Group.objects.create(name='course_coordinators')
 
 u1 = User.objects.create_user(username='admin', password='123', is_staff=True, is_superuser=True)
 
