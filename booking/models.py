@@ -14,13 +14,13 @@ class Course(models.Model):
     students = models.ManyToManyField(
         User,
         limit_choices_to={'groups__name': "students"},
-        related_name="courses_enrolled_in",
+        related_name="enrolled_courses",
         blank=True,
     )
     assistant = models.ManyToManyField(
         User,
         limit_choices_to={'groups__name': "assistants"},
-        related_name="courses_assisting_in",
+        related_name="assisting_courses",
         blank=True,
     )
     course_coordinator = models.OneToOneField(
