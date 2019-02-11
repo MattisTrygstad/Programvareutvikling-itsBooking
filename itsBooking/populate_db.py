@@ -16,6 +16,6 @@ print("Saving new data...")
 for v in list(locals().values()):
     try:
         v.save()
-        print(f'{v} saved ({type(v)})')
     except (AttributeError, TypeError):
         pass
+print("DB successfully reset!")
