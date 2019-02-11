@@ -27,9 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -72,7 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'itsBooking.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -83,6 +79,15 @@ DATABASES = {
     }
 }
 
+
+#########################
+# Import local settings
+#########################
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -123,19 +128,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-#############################
-### Added by jonatan
-############################
+STATIC_ROOT = os.path.join(BASE_DIR, '../static/')
+MEDIA_ROOT = os.path.join(BASE_DIR, '../media/')
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, '../static/')
-MEDIA_ROOT = os.path.join(BASE_DIR, '../media/')
 
-try:
-    from .local_settings import *
-except ImportError:
-    pass

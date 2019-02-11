@@ -21,7 +21,7 @@ from django.urls import path
 from itsBooking.views import Home, populate_db
 
 urlpatterns = [
-    path('', Home.as_view(), name='index'),
+    path('', Home.as_view(), name='home'),
     path('populate/', populate_db, name='populate'),
     path('admin/', admin.site.urls),
 ]
