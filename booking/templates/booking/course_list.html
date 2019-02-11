@@ -1,0 +1,13 @@
+<h3>Your courses:</h3>
+<div class="uk-child-width-expand@s uk-text-center" uk-grid>
+{% for course in courses %}
+    <div class="uk-width-1-4@m">
+        <a href="">
+            <div class="uk-card uk-card-large uk-card-primary uk-card-body uk-card-hover"
+                style="color: white;">
+                {{ course.subject_code }}<br>{{ course }}
+            </div>
+        </a>
+    </div>
+{% endfor %}
+</div>

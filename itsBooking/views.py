@@ -8,9 +8,16 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
+from booking.models import Course
+
 
 class Home(TemplateView, LoginRequiredMixin):
     template_name = 'itsBooking/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['course_list'] = Course.objects.all()
+        return context
 
 
 class LoginView(SuccessMessageMixin, LoginView):
