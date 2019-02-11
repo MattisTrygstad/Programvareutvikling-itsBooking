@@ -18,10 +18,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
-from itsBooking.views import Home
+from itsBooking.views import Home, populate_db
 
 urlpatterns = [
     path('', Home.as_view(), name='index'),
+    path('populate/', populate_db, name='populate'),
     path('admin/', admin.site.urls),
 ]
 
