@@ -17,10 +17,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth import views as auth_views
 
 from itsBooking.views import Home, populate_db
 
 urlpatterns = [
+    path('login/', auth_views.LoginView.as_view(template_name='itsBooking/login.html'), name='login' ),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', Home.as_view(), name='home'),
     path('populate/', populate_db, name='populate'),
     path('admin/', admin.site.urls),
