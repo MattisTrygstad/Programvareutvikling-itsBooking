@@ -3,7 +3,7 @@
 {% block body %}
 <div class="uk-container uk-dark">
     <h1 class="uk-heading-primary">Welcome!</h1>
+    {% include 'generic/display_success_messages.html' %}
     <a class="uk-button uk-button-default uk-button-small" href="{% url 'populate' %}">Populate DB</a>
-    <p>Stuff works!</p>
 </div>
 {% endblock %}

@@ -4,7 +4,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Cogito NTNU{% endblock %}</title>
+        <title>{% block title %}itsBooking{% endblock %}</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=0.8">
         <meta property="og:title" content="{% block og_title %}itsBooking{% endblock og_title %}"/>
@@ -25,9 +25,7 @@
 
     <body>
         {% block header %}{% include 'itsBooking/header.html' %}{% endblock header %}
-        <div style="min-height: {% block content_padding_top %}40px{% endblock %};"></div>
         <div class="content">{% block body %}{% endblock body %}</div>
-        <div style="min-height: {% block content_padding_bottom %}40px{% endblock %};"></div>
         {% block footer %}{% include 'itsBooking/footer.html' %}{% endblock footer %}
     </body>
 </html>
