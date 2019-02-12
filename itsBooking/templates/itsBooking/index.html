@@ -4,8 +4,8 @@
 {% block body %}
 <div class="uk-container uk-container-small">
     <h1 class="uk-heading-primary">Welcome!</h1>
-    {% include 'generic/display_success_messages.html' %}
     <a class="uk-button uk-button-default uk-button-small" href="{% url 'populate' %}">Populate DB</a>
+    {% include 'generic/display_success_messages.html' %}
 
     <div class="uk-margin">
     {% if user|in_group:"students" %}
