@@ -7,7 +7,7 @@ class Course(models.Model):
         max_length=50,
         unique=True,
     )
-    subject_code = models.CharField(
+    course_code = models.CharField(
         max_length=10,
         unique=True,
     )
@@ -17,7 +17,7 @@ class Course(models.Model):
         related_name="enrolled_courses",
         blank=True,
     )
-    assistant = models.ManyToManyField(
+    assistants = models.ManyToManyField(
         User,
         limit_choices_to={'groups__name': "assistants"},
         related_name="assisting_courses",
@@ -26,9 +26,10 @@ class Course(models.Model):
     course_coordinator = models.OneToOneField(
         User,
         limit_choices_to={'groups__name': "course_coordinators"},
-        default=None,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
-        related_name="course"
+        related_name="course",
     )
 
     def __str__(self):
