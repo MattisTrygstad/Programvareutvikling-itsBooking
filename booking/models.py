@@ -1,3 +1,6 @@
+import calendar
+import hashlib
+
 from django.db import models
 from django.contrib.auth.models import User, Group
 
@@ -34,3 +37,42 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class BookingInterval(models.Model):
+    DAY_CHOICES = [(str(i), list(calendar.day_name)[i]) for i in range(0, 5)]
+    course = models.ForeignKey(
+        Course,
+        related_name='booking_interval',
+        on_delete=models.CASCADE,
+    )
+    day = models.CharField(
+        max_length=20,
+        choices=DAY_CHOICES,
+    )
+    start = models.TimeField()
+    end = models.TimeField()
+    min_available_assistants = models.IntegerField(
+        default=0,
+    )
+    assistants = models.ManyToManyField(
+        User,
+        limit_choices_to={'groups__name': "assistants"},
+        blank=True,
+        related_name='setup_assistant_hours',
+    )
+    nk = models.CharField(
+        max_length=32,
+        blank=False,
+        unique=True,
+        primary_key=True,
+    )
+
+    def save(self, **kwargs):
+        if not self.nk:
+            secure_hash = hashlib.md5()
+            secure_hash.update(
+                f'{self.start}:{self.get_day_display()}:{self.course}'.encode(
+                    'utf-8'))
+            self.nk = secure_hash.hexdigest()
+        super().save(**kwargs)
