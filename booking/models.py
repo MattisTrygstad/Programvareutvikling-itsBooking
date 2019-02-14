@@ -54,6 +54,8 @@ class BookingInterval(models.Model):
     end = models.TimeField()
     min_available_assistants = models.IntegerField(
         default=0,
+        blank=True,
+        null=True,  # None => interval closed for assistants and booking
     )
     assistants = models.ManyToManyField(
         User,
