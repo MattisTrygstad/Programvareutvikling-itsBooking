@@ -80,3 +80,24 @@ class BookingInterval(models.Model):
         super().save(**kwargs)
 
 
+class Reservation(models.Model):
+    booking_interval = models.ForeignKey(
+        BookingInterval,
+        related_name='reservations',
+        on_delete=models.CASCADE,
+    )
+    index = models.IntegerField(
+        choices=list(range(1, 9)),
+    )
+    student = models.ForeignKey(
+        User,
+        limit_choices_to={'groups__name': "students"},
+        related_name='reservations',
+        on_delete=models.CASCADE,
+    )
+    assistant = models.ForeignKey(
+        User,
+        limit_choices_to={'groups__name': "assistants"},
+        related_name='bookings',
+        on_delete=models.CASCADE,
+    )
