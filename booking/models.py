@@ -78,3 +78,5 @@ class BookingInterval(models.Model):
                     'utf-8'))
             self.nk = secure_hash.hexdigest()
         super().save(**kwargs)
+
+
