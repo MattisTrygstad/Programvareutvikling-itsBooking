@@ -51,3 +51,6 @@ class TestBaseViews(TestCase):
         self.assertEqual(302, response.status_code)
         response = self.client.get(reverse_lazy('logout'))
         self.assertEqual(302, response.status_code)
+
+
+

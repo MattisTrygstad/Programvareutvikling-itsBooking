@@ -1,8 +1,10 @@
 import calendar
 import hashlib
+import datetime
 
 from django.db import models
 from django.contrib.auth.models import User, Group
+#from booking.helpers import generate_booking_intervals
 
 
 class Course(models.Model):
@@ -37,6 +39,23 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+
+    def save(self,**kwargs):
+        '''Generate five booking intervals for a course'''
+        super().save(**kwargs)
+        for i in range(5):
+            day = calendar.day_name[i]
+            for interval in range(5):
+                hour = 8
+                start = datetime.time(hour=hour, minute=00)
+                end = datetime.time(hour=hour + 2, minute=00)
+                BookingInterval.objects.create(course=self, day=day, start=start, end=end)
+                hour += 2
+        super().save(**kwargs)
+
+
+
 
 
 class BookingInterval(models.Model):
@@ -78,3 +97,7 @@ class BookingInterval(models.Model):
                     'utf-8'))
             self.nk = secure_hash.hexdigest()
         super().save(**kwargs)
+
+
+    def __str__(self):
+        return self.course + " "  + self.day + " " + self.start + " " + self.end
