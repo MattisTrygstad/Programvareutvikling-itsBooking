@@ -87,7 +87,7 @@ class Reservation(models.Model):
         on_delete=models.CASCADE,
     )
     index = models.IntegerField(
-        choices=list(range(1, 9)),
+        choices=[(i, i) for i in range(1, 9)],
     )
     student = models.ForeignKey(
         User,
