@@ -4,6 +4,7 @@ import datetime
 
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.template.defaultfilters import slugify
 
 
 class Course(models.Model):
@@ -15,6 +16,7 @@ class Course(models.Model):
         max_length=10,
         unique=True,
     )
+    slug = models.SlugField()
     students = models.ManyToManyField(
         User,
         limit_choices_to={'groups__name': "students"},
@@ -50,6 +52,8 @@ class Course(models.Model):
                 BookingInterval.objects.create(day=day, start=start, end=end, course=self)
 
     def save(self, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.course_code)
         super().save(**kwargs)
         if not self.booking_intervals.all():
             self._generate_booking_intervals()
