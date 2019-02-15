@@ -49,7 +49,7 @@ class Course(models.Model):
             for hour in range(8, 18, 2):
                 start = datetime.time(hour=hour, minute=00)
                 end = datetime.time(hour=hour + 2, minute=00)
-                BookingInterval.objects.create(day=day, start=start, end=end, course=self)
+                self.booking_intervals.create(day=day, start=start, end=end)
 
     def save(self, **kwargs):
         if not self.slug:
