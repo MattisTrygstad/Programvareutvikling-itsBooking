@@ -1,0 +1,11 @@
+{% extends 'itsBooking/base.html' %}
+{% load helpers %}
+
+{% block body %}
+<div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+
+    <h2>{{ course.course_code }} - {{ course.title }}</h2>
+
+    {% include 'booking/table_skeleton.html' %}
+</div>
+{% endblock %}

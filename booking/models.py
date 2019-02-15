@@ -1,12 +1,18 @@
 import calendar
 import hashlib
-import datetime
+from datetime import time
 
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.template.defaultfilters import slugify
 
 
 class Course(models.Model):
+    OPEN_BOOKING_TIME = 8
+    CLOSE_BOOKING_TIME = 18
+    BOOKING_INTERVAL_LENGTH = 2
+    NUM_DAYS_IN_WORK_WEEK = 5
+
     title = models.CharField(
         max_length=50,
         unique=True,
@@ -15,6 +21,7 @@ class Course(models.Model):
         max_length=10,
         unique=True,
     )
+    slug = models.SlugField()
     students = models.ManyToManyField(
         User,
         limit_choices_to={'groups__name': "students"},
@@ -43,13 +50,17 @@ class Course(models.Model):
         """
         generates booking intervals associated with a course. 5 2-hour intervals for every weekday
         """
-        for day in range(5):
-            for hour in range(8, 18, 2):
-                start = datetime.time(hour=hour, minute=00)
-                end = datetime.time(hour=hour + 2, minute=00)
-                BookingInterval.objects.create(day=day, start=start, end=end, course=self)
+        for day in range(self.NUM_DAYS_IN_WORK_WEEK):
+            for hour in range(self.OPEN_BOOKING_TIME,
+                              self.CLOSE_BOOKING_TIME,
+                              self.BOOKING_INTERVAL_LENGTH):
+                start = time(hour=hour, minute=00)
+                end = time(hour=hour + 2, minute=00)
+                self.booking_intervals.create(day=day, start=start, end=end)
 
     def save(self, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.course_code)
         super().save(**kwargs)
         if not self.booking_intervals.all():
             self._generate_booking_intervals()
