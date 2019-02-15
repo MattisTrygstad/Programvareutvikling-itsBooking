@@ -40,7 +40,6 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
-
     def save(self,**kwargs):
         '''Generate five booking intervals for a course'''
         super().save(**kwargs)
@@ -50,16 +49,14 @@ class Course(models.Model):
                 hour = 8
                 start = datetime.time(hour=hour, minute=00)
                 end = datetime.time(hour=hour + 2, minute=00)
-                BookingInterval.objects.create(course=self, day=day, start=start, end=end)
+                self.booking_interval.create(day=day, start=start, end=end)
                 hour += 2
-        super().save(**kwargs)
-
-
 
 
 
 class BookingInterval(models.Model):
     DAY_CHOICES = [(str(i), list(calendar.day_name)[i]) for i in range(0, 5)]
+
     course = models.ForeignKey(
         Course,
         related_name='booking_interval',
@@ -101,3 +98,5 @@ class BookingInterval(models.Model):
 
     def __str__(self):
         return self.course + " "  + self.day + " " + self.start + " " + self.end
+
+
