@@ -4,7 +4,6 @@ import datetime
 
 from django.db import models
 from django.contrib.auth.models import User, Group
-#from booking.helpers import generate_booking_intervals
 
 
 class Course(models.Model):
@@ -41,28 +40,28 @@ class Course(models.Model):
         return self.title
 
     def _generate_booking_intervals(self):
-        '''Generate five booking intervals for a course'''
-        for i in range(5):
-            day = calendar.day_name[i]
-            for interval in range(5):
-                hour = 8
+        """
+        generates booking intervals associated with a course. 5 2-hour intervals for every weekday
+        """
+        for day in range(5):
+            for hour in range(8, 18, 2):
                 start = datetime.time(hour=hour, minute=00)
                 end = datetime.time(hour=hour + 2, minute=00)
-                self.booking_interval.create(day=day, start=start, end=end)
-                hour += 2
+                BookingInterval.objects.create(day=day, start=start, end=end, course=self)
 
-    def save(self,**kwargs):
+    def save(self, **kwargs):
         super().save(**kwargs)
-        self._generate_booking_intervals()
-
+        if not self.booking_intervals.all():
+            self._generate_booking_intervals()
+        super().save()
 
 
 class BookingInterval(models.Model):
-    DAY_CHOICES = [(str(i), list(calendar.day_name)[i]) for i in range(0, 5)]
+    DAY_CHOICES = [(str(i), calendar.day_name[i]) for i in range(0, 5)]
 
     course = models.ForeignKey(
         Course,
-        related_name='booking_interval',
+        related_name='booking_intervals',
         on_delete=models.CASCADE,
     )
     day = models.CharField(
@@ -89,17 +88,21 @@ class BookingInterval(models.Model):
         primary_key=True,
     )
 
+    class Meta:
+        ordering = [
+            '-course', 'day', 'start'
+        ]
+
     def save(self, **kwargs):
         if not self.nk:
             secure_hash = hashlib.md5()
             secure_hash.update(
-                f'{self.start}:{self.get_day_display()}:{self.course}'.encode(
+                f'{self.start}-{self.get_day_display()}-{self.course}'.encode(
                     'utf-8'))
             self.nk = secure_hash.hexdigest()
         super().save(**kwargs)
 
-
     def __str__(self):
-        return self.course + " "  + self.day + " " + self.start + " " + self.end
+        return f'{self.course.course_code} {self.get_day_display()} {self.start}-{self.end}'
 
 
