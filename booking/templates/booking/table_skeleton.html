@@ -17,7 +17,13 @@
                 <tr>
                     <td>{{ interval.start }} - {{ interval.stop }}</td>
                     {% for booking_interval in interval.objects %}
-                        <td id="{{ booking_interval.nk }}">{{ booking_interval.min_available_assistants }}</td>
+                        <td>
+                            <input type="number" name="min num of assistants"
+                            id="{{ booking_interval.nk }}" min="0" step="1"
+                            value="{{ booking_interval.min_available_assistants }}"
+                            class="uk-form-width-xsmall uk-input uk-form-blank"
+                            onchange="update_min_assistants(this, this.id, this.value);">
+                        </td>
                     {% endfor %}
                 </tr>
             {% endfor %}
@@ -25,5 +31,25 @@
     </table>
 </div>
 
+
+<script>
+function update_min_assistants(element, id, num) {
+
+    if (num < element.min || Math.floor(num) != num) {
+        element.value = 0;
+        // element.setCustomValidity('FY!')
+    }
+
+    console.log(id + ' : ' + num)
+    $.ajax({
+        url: '{% url 'update_min_num_assistants' %}',
+        data: {
+            'nk': id,
+            'num': num,
+        },
+        dataType: 'json',
+    })
+}
+</script>
 
 {% endblock body %}

@@ -1,7 +1,9 @@
 import calendar
 from datetime import time
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import HttpResponse
 from django.views.generic import DetailView
 
 from booking.models import Course, BookingInterval
@@ -28,4 +30,17 @@ class CourseDetail(DetailView):
             intervals.append(interval)
         context['intervals'] = intervals
         return context
+
+
+def update_min_num_assistants(request):
+    nk = request.GET.get('nk', None)
+    num = request.GET.get('num', None)
+    booking_interval = BookingInterval.objects.get(nk=nk)
+
+    if request.user == booking_interval.course.course_coordinator:
+        booking_interval.min_available_assistants = num
+        booking_interval.save()
+        return HttpResponse('')
+
+    raise PermissionDenied()
 
