@@ -12,11 +12,6 @@ from booking.models import Course, BookingInterval
 class CourseDetail(DetailView):
     model = Course
 
-    def get_interval_objects(self, start_time):
-        return BookingInterval.objects.filter(
-            Q(start=time(hour=int(start_time))) & Q(course=self.object)
-        )
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['weekdays'] = list(calendar.day_name)[0:5]
