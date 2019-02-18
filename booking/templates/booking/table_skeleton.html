@@ -18,11 +18,15 @@
                     <td>{{ interval.start }} - {{ interval.stop }}</td>
                     {% for booking_interval in interval.objects %}
                         <td>
-                            <input type="number" name="min num of assistants"
-                            id="{{ booking_interval.nk }}" min="0" step="1"
-                            value="{{ booking_interval.min_available_assistants }}"
-                            class="uk-form-width-xsmall uk-input uk-form-blank"
-                            onchange="update_min_assistants(this, this.id, this.value);">
+                            {% if user|in_group:"course_coordinators" %}
+                                <input type="number" name="min num of assistants"
+                                id="{{ booking_interval.nk }}" min="0" step="1"
+                                value="{{ booking_interval.min_available_assistants }}"
+                                class="uk-form-width-xsmall uk-input uk-form-blank"
+                                onchange="update_min_assistants(this, this.id, this.value);">
+                            {% else %}
+                                <input type="checkbox"
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
