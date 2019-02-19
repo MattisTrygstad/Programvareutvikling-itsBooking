@@ -33,7 +33,7 @@ def update_min_num_assistants(request):
     booking_interval = BookingInterval.objects.get(nk=nk)
 
     if request.user == booking_interval.course.course_coordinator:
-        booking_interval.min_available_assistants = num
+        booking_interval.min_available_assistants = num if num != '' else None
         booking_interval.save()
         return HttpResponse('')
 
