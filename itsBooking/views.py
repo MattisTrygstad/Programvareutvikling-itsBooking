@@ -38,4 +38,4 @@ def populate_db(request):
         from . import populate_db
         messages.success(request, 'Database flushed and populated successfully!')
         return LogoutView.as_view()(request)
-    raise PermissionDenied()
+

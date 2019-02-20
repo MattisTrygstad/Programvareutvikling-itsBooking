@@ -25,7 +25,8 @@
                                 class="uk-form-width-xsmall uk-input uk-form-blank"
                                 onchange="update_min_assistants(this, this.id, this.value);">
                             {% else %}
-                                <input type="checkbox"
+                                <input type="button" name="add assistans" id="{{ booking_interval.nk }}"
+                                onclick="make_assistants_available(this, this.id);"  value="Ledig">
                             {% endif %}
                         </td>
                     {% endfor %}
@@ -50,6 +51,18 @@ function update_min_assistants(element, id, num) {
         data: {
             'nk': id,
             'num': num,
+        },
+        dataType: 'json',
+    })
+
+}
+
+function make_assistants_available(element, id) {
+
+    $.ajax({
+        url: '{% url 'make_assistants_available' %}',
+        data: {
+            'nk': id,
         },
         dataType: 'json',
     })

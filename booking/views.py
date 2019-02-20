@@ -39,3 +39,15 @@ def update_min_num_assistants(request):
 
     raise PermissionDenied()
 
+def make_assistants_available(request):
+    nk = request.GET.get('nk', None)
+    booking_interval = BookingInterval.objects.get(nk=nk)
+    print("Hei")
+    if not booking_interval.assistants.filter(id=request.user.id).exists():
+        booking_interval.assistants.add(request.user.id)
+        print(booking_interval.assistants.all())
+    else:
+        booking_interval.assistants.remove(request.user.id)
+    return HttpResponse('')
+
+
