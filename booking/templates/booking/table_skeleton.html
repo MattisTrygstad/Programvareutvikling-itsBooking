@@ -25,9 +25,8 @@
                                 class="uk-form-width-xsmall uk-input uk-form-blank"
                                 onchange="update_min_assistants(this, this.id, this.value);">
                             {% else %}
-<<<<<<< HEAD
                                 <input type="button" name="add assistans" id="{{ booking_interval.nk }}"
-                                onclick="make_assistants_available(this, this.id);"  value="Ledig">
+                                onclick="make_assistants_available(this, this.id);" value="Ledig">
                             {% endif %}
                         </td>
                     {% endfor %}
@@ -66,8 +65,25 @@ function make_assistants_available(element, id) {
             'nk': id,
         },
         dataType: 'json',
+        success: function(data) {
+            if(data.make_available){
+                make_available(id);
+            } else {
+                make_not_available(id);
+            }
+        }
     })
+
 }
+
+function make_available(id){
+    document.getElementById(id).setAttribute('value','Meld opp');
+}
+
+function make_not_available(id){
+    document.getElementById(id).setAttribute('value','Meld av');
+}
+
 </script>
 
 {% endblock body %}
