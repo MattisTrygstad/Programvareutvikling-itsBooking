@@ -25,16 +25,21 @@
                                 class="uk-form-width-xsmall uk-input uk-form-blank"
                                 onchange="update_min_assistants(this, this.id, this.value);">
                             {% else %}
-                                <input type="button" name="add assistans" id="{{ booking_interval.nk }}"
-                                onclick="make_assistants_available(this, this.id);" 
+
+                                <input type="button" name="add assistants" id="{{ booking_interval.nk }}"
+                                onclick="make_assistants_available(this, this.id);" {% if booking_interval.min_available_assistants == 0 %} disabled {% endif %}
                                 {% if request.user in booking_interval.assistants.all %}
-                                value="Meld av "
+                                value="Meld av"
                                 class="uk-button uk-button-primary uk-button-small uk-width-3-4 uk-width-expand"
                                 {% else %}
-                                value="Meld opp"
-                                class="uk-button uk-button-default uk-button-small uk-width-3-4 uk-width-expand"
+                                   {% if booking_interval.min_available_assistants <= booking_interval.assistants.all.count %}
+                                    value="Meld opp"
+                                    class="uk-button uk-button-danger uk-button-small uk-width-3-4 uk-width-expand"
+                                   {% else %}
+                                    value="Meld opp"
+                                    class="uk-button uk-button-default uk-button-small uk-width-3-4 uk-width-expand"
+                                   {% endif %}
                                 {% endif %}>
-
                             {% endif %}
                         </td>
                     {% endfor %}
@@ -90,7 +95,7 @@ function make_available(id){
 }
 
 function make_not_available(id){
-    document.getElementById(id).setAttribute('value','Meld av ');
+    document.getElementById(id).setAttribute('value','Meld av');
     document.getElementById(id).setAttribute('class','uk-button uk-button-primary uk-button-small uk-width-3-4 uk-width-expand')
 }
 
