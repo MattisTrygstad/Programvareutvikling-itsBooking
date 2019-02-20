@@ -13,7 +13,7 @@
     {% elif user|in_group:"assistants" %}
         {% include 'booking/course_list.html' with courses=user.assisting_courses.all %}
     {% elif user|in_group:"course_coordinators" %}
-        {% include 'booking/course_detail.html' with course=user.course %}
+        {% include 'booking/course_grid_box.html' with course=user.course %}
     {% endif %}
     </div>
 </div>
