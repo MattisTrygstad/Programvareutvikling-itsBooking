@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, BookingInterval
+from .models import Course, BookingInterval, Reservation
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -8,3 +8,4 @@ class CourseAdmin(admin.ModelAdmin):
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(BookingInterval)
+admin.site.register(Reservation)

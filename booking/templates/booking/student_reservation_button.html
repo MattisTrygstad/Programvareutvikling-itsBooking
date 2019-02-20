@@ -1,0 +1,12 @@
+<button class="uk-button-default uk-width-small" style="height: 30px;"
+{% if not reservations.1 %}
+    disabled>Stengt</button>
+{% elif reservations.0 < reservations.1 %}
+    >
+        {{ reservations.0 }}/{{ reservations.1 }} ledig
+    </button>
+{% else %}
+     disabled>
+        {{ reservations.0 }}/{{ reservations.1 }} fullt
+    </button>
+{% endif %}
