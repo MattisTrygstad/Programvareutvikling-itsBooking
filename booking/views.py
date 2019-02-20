@@ -27,6 +27,32 @@ class CourseDetail(DetailView):
         return context
 
 
+class StudentBooking(DetailView):
+    model = Course
+    template_name = 'booking/test_table.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['weekdays'] = list(calendar.day_name)[0:5]
+        intervals = []
+        for hour in range(Course.OPEN_BOOKING_TIME, Course.CLOSE_BOOKING_TIME, Course.BOOKING_INTERVAL_LENGTH):
+            interval = {
+                'start': time(hour),
+                'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
+                'objects': BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object)),
+                'reservations_intervals': {
+                    i: {
+                        'start': time(hour=hour + (15*i)//60, minute=(15*i) % 60),
+                        'stop': time(hour=hour + (15*(i+1))//60, minute=(15*(i+1)) % 60)
+                        }
+                    for i in range(0, 8)
+                }
+            }
+            intervals.append(interval)
+        context['intervals'] = intervals
+        return context
+
+
 def update_min_num_assistants(request):
     nk = request.GET.get('nk', None)
     num = request.GET.get('num', None)

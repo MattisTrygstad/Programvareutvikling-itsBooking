@@ -11,6 +11,7 @@ class Course(models.Model):
     OPEN_BOOKING_TIME = 8
     CLOSE_BOOKING_TIME = 18
     BOOKING_INTERVAL_LENGTH = 2
+    RESERVATION_LENGTH = 15
     NUM_DAYS_IN_WORK_WEEK = 5
 
     title = models.CharField(
@@ -124,7 +125,7 @@ class Reservation(models.Model):
         on_delete=models.CASCADE,
     )
     index = models.IntegerField(
-        choices=[(i, i) for i in range(1, 9)],
+        choices=[(i, i) for i in range(0, 8)],
     )
     student = models.ForeignKey(
         User,
