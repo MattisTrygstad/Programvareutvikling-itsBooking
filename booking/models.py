@@ -1,8 +1,18 @@
+import calendar
+import hashlib
+from datetime import time
+
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.template.defaultfilters import slugify
 
 
 class Course(models.Model):
+    OPEN_BOOKING_TIME = 8
+    CLOSE_BOOKING_TIME = 18
+    BOOKING_INTERVAL_LENGTH = 2
+    NUM_DAYS_IN_WORK_WEEK = 5
+
     title = models.CharField(
         max_length=50,
         unique=True,
@@ -11,6 +21,7 @@ class Course(models.Model):
         max_length=10,
         unique=True,
     )
+    slug = models.SlugField()
     students = models.ManyToManyField(
         User,
         limit_choices_to={'groups__name': "students"},
@@ -34,3 +45,75 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+    def _generate_booking_intervals(self):
+        """
+        generates booking intervals associated with a course. 5 2-hour intervals for every weekday
+        """
+        for day in range(self.NUM_DAYS_IN_WORK_WEEK):
+            for hour in range(self.OPEN_BOOKING_TIME,
+                              self.CLOSE_BOOKING_TIME,
+                              self.BOOKING_INTERVAL_LENGTH):
+                start = time(hour=hour, minute=00)
+                end = time(hour=hour + 2, minute=00)
+                self.booking_intervals.create(day=day, start=start, end=end)
+
+    def save(self, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.course_code)
+        super().save(**kwargs)
+        if not self.booking_intervals.all():
+            self._generate_booking_intervals()
+        super().save()
+
+
+class BookingInterval(models.Model):
+    DAY_CHOICES = [(str(i), calendar.day_name[i]) for i in range(0, 5)]
+
+    course = models.ForeignKey(
+        Course,
+        related_name='booking_intervals',
+        on_delete=models.CASCADE,
+    )
+    day = models.CharField(
+        max_length=20,
+        choices=DAY_CHOICES,
+    )
+    start = models.TimeField()
+    end = models.TimeField()
+    min_available_assistants = models.IntegerField(
+        default=0,
+        blank=True,
+        null=True,  # None => interval closed for assistants and booking
+    )
+    assistants = models.ManyToManyField(
+        User,
+        limit_choices_to={'groups__name': "assistants"},
+        blank=True,
+        related_name='setup_assistant_hours',
+    )
+    nk = models.CharField(
+        max_length=32,
+        blank=False,
+        unique=True,
+        primary_key=True,
+    )
+
+    class Meta:
+        ordering = [
+            '-course', 'day', 'start'
+        ]
+
+    def save(self, **kwargs):
+        if not self.nk:
+            secure_hash = hashlib.md5()
+            secure_hash.update(
+                f'{self.start}-{self.get_day_display()}-{self.course}'.encode(
+                    'utf-8'))
+            self.nk = secure_hash.hexdigest()
+        super().save(**kwargs)
+
+    def __str__(self):
+        return f'{self.course.course_code} {self.get_day_display()} {self.start}-{self.end}'
+
+

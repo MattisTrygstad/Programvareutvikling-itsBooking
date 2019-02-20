@@ -1,0 +1,60 @@
+{% extends 'itsBooking/base.html' %}
+{% load helpers %}
+
+{% block body %}
+<div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+    <table class="uk-table uk-table-striped uk-table-small uk-table-middle">
+        <thead>
+            <tr>
+                <th></th>
+                {% for day in weekdays %}
+                    <th>{{ day|nob_day }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for interval in intervals %}
+                <tr>
+                    <td>{{ interval.start }} - {{ interval.stop }}</td>
+                    {% for booking_interval in interval.objects %}
+                        <td>
+                            {% if user|in_group:"course_coordinators" %}
+                                <input type="number" name="min num of assistants"
+                                id="{{ booking_interval.nk }}" min="0" step="1"
+                                value="{{ booking_interval.min_available_assistants }}"
+                                class="uk-input uk-form-blank"
+                                onchange="update_min_assistants(this, this.id, this.value);"
+                                style="width: 60px;">
+                            {% else %}
+                                <input type="checkbox" class="uk-checkbox">
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+function update_min_assistants(element, id, num) {
+
+    if (num < element.min && num != '') {
+        element.value = 0;
+        // element.setCustomValidity('FY!')
+    }
+
+    console.log(id + ' : ' + num)
+    $.ajax({
+        url: '{% url 'update_min_num_assistants' %}',
+        data: {
+            'nk': id,
+            'num': num,
+        },
+        dataType: 'json',
+    })
+}
+</script>
+
+{% endblock body %}

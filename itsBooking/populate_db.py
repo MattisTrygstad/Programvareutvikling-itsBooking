@@ -26,7 +26,7 @@ u_assistant_1.groups.add(g_assistants)
 u_cc_1.groups.add(g_ccs)
 
 # create courses
-c_algdat = Course.objects.create(title='Algoritmer og datamaskiner', course_code='TDT4120')
+c_algdat = Course.objects.create(title='Algoritmer og datastrukturer', course_code='TDT4120')
 c_mat1 = Course.objects.create(title='Matematikk 1', course_code='TMA4100')
 c_med = Course.objects.create(title='Innføring i medisin for ikke-medisinere', course_code='MFEL1010')
 
