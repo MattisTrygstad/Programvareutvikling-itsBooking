@@ -26,7 +26,12 @@
                                 onchange="update_min_assistants(this, this.id, this.value);">
                             {% else %}
                                 <input type="button" name="add assistans" id="{{ booking_interval.nk }}"
-                                onclick="make_assistants_available(this, this.id);" value="Ledig">
+                                onclick="make_assistants_available(this, this.id);" 
+                                {% if request.user in booking_interval.assistants.all %}
+                                value="Meld av"
+                                {% else %}
+                                value="Meld opp"
+                                {% endif %}>
                             {% endif %}
                         </td>
                     {% endfor %}
