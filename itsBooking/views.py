@@ -30,7 +30,8 @@ class LoginView(SuccessMessageMixin, LoginView):
 
 
 class LogoutView(SuccessMessageMixin, LogoutView):
-    pass
+    def get(self, request):
+        return logout(request)
 
 
 def populate_db(request):
