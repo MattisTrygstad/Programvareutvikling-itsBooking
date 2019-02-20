@@ -28,9 +28,11 @@
                                 <input type="button" name="add assistans" id="{{ booking_interval.nk }}"
                                 onclick="make_assistants_available(this, this.id);" 
                                 {% if request.user in booking_interval.assistants.all %}
-                                value="Meld av"
+                                value="Meld av "
+                                class="uk-button uk-button-primary uk-button-small uk-width-3-4 uk-width-expand"
                                 {% else %}
                                 value="Meld opp"
+                                class="uk-button uk-button-default uk-button-small uk-width-3-4 uk-width-expand"
                                 {% endif %}>
 
                             {% endif %}
@@ -84,10 +86,12 @@ function make_assistants_available(element, id) {
 
 function make_available(id){
     document.getElementById(id).setAttribute('value','Meld opp');
+    document.getElementById(id).setAttribute('class','uk-button uk-button-default uk-button-small uk-width-3-4 uk-width-expand');
 }
 
 function make_not_available(id){
-    document.getElementById(id).setAttribute('value','Meld av');
+    document.getElementById(id).setAttribute('value','Meld av ');
+    document.getElementById(id).setAttribute('class','uk-button uk-button-primary uk-button-small uk-width-3-4 uk-width-expand')
 }
 
 </script>
