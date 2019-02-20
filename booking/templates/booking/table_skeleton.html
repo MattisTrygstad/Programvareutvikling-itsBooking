@@ -25,8 +25,13 @@
                                 class="uk-form-width-xsmall uk-input uk-form-blank"
                                 onchange="update_min_assistants(this, this.id, this.value);">
                             {% else %}
-                                <input type="button" name="add assistans" id="{{ booking_interval.nk }}"
-                                onclick="make_assistants_available(this, this.id);" value="Ledig">
+                                {% if user in booking_interval.assistants %}
+                                    <input type="button" name="add assistants" id="{{ booking_interval.nk }}"
+                                    onclick="make_assistants_available(this, this.id);" value="Meld av">
+                                {% else %}
+                                    <input type="button" name="add assistants" id="{{ booking_interval.nk }}"
+                                    onclick="make_assistants_available(this, this.id);" value="Meld opp">
+                                {% endif %}
                             {% endif %}
                         </td>
                     {% endfor %}
