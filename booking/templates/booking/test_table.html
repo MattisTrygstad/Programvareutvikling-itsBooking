@@ -11,6 +11,11 @@ tr.reservation_row {
 
 tr.booking_interval_row:hover {
     background-color: rgba(250, 250, 150, 0.3) !important;
+    cursor: pointer;
+}
+
+button.table_button {
+    height: 30px;
 }
 
 </style>
@@ -21,7 +26,7 @@ tr.booking_interval_row:hover {
             <tr>
                 <th>Time</th>
                 {% for day in weekdays %}
-                    <th>{{ day|nob_day }}</th>
+                    <th class="uk-text-center">{{ day|nob_day }}</th>
                 {% endfor %}
             </tr>
         </thead>
