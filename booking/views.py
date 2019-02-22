@@ -23,7 +23,7 @@ class BookingView(DetailView):
                 'start': time(hour),
                 'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
                 'objects': booking_intervals,
-                'reservations_intervals': [
+                'interval_reservation_intervals': [
                     {
                         'start': time(hour=hour + (15*i)//60, minute=(15*i) % 60),
                         'stop': time(hour=hour + (15*(i+1))//60, minute=(15*(i+1)) % 60),

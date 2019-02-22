@@ -1,8 +1,9 @@
 <button class="uk-button-primary uk-width-small table_button" type="button"
+        id="{{ course.course_code }}-{{ interval.start }}-{{ reservation_interval.index }}"
 {% if not reservations.2 %}
     disabled>Stengt
 {% elif reservations.0 > 0 %}
-    uk-toggle="target: #reservation_modal" style="cursor: pointer;">
+    uk-toggle="target: #reservation_modal" style="cursor: pointer;" onclick="set_reservation(this)">
         {{ reservations.0 }}/{{ reservations.1 }} ledig
 {% else %}
      disabled>
