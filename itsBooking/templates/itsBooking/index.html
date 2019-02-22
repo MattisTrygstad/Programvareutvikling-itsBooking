@@ -1,5 +1,6 @@
 {% extends 'itsBooking/base.html' %}
 {% load helpers %}
+{% load static %}
 
 
 {% block header %}
@@ -7,7 +8,9 @@
     <div class="uk-container uk-container-small">
         <div class="uk-navbar">
             <div class="uk-navbar-left">
-                {% load static %} <img src="{% static "itsbooking.png" %}" width="180px" />
+                <div class="uk-navbar-item">
+                    <img src="{% static "itsbooking.png" %}" width="150px" />
+                </div>
                 <ul class="uk-navbar-nav">
                     <li><a href="{% url 'populate' %}">Populate DB</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
