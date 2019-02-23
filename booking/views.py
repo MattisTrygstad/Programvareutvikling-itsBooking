@@ -6,7 +6,8 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.views.generic import DetailView
 
-from booking.models import Course, BookingInterval
+from booking.forms import ReservationForm
+from booking.models import Course, BookingInterval, Reservation
 
 
 class BookingView(DetailView):
@@ -29,8 +30,12 @@ class BookingView(DetailView):
                         'stop': time(hour=hour + (15*(i+1))//60, minute=(15*(i+1)) % 60),
                         'index': i,
                         'reservations': [
-                            (bi.assistants.count() - bi.reservations.filter(index=i).count(),
-                             bi.assistants.count(), bi.min_available_assistants)
+                            {
+                             'free_slots': bi.assistants.count() - bi.reservations.filter(index=i).count(),
+                             'num_assistants': bi.assistants.count(),
+                             'min_available_assistants': bi.min_available_assistants,
+                             'parent_booking_interval': bi
+                            }
                             for bi in booking_intervals
                         ],
                     }
@@ -39,7 +44,22 @@ class BookingView(DetailView):
             }
             intervals.append(interval)
         context['intervals'] = intervals
+        context['form'] = ReservationForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = ReservationForm(request.POST, request.FILES)
+        if form.is_valid():
+            bi = BookingInterval.objects.get(nk=form.cleaned_data['booking_interval_nk'])
+            index = form.cleaned_data['reservation_index']
+            Reservation.objects.create(booking_interval=bi, index=index, student=request.user)
+            self.object = self.get_object()
+            return self.render_to_response(context=self.get_context_data())
+        else:
+            self.object = self.get_object()
+            context = self.get_context_data()
+            context['form'] = form
+            return self.render_to_response(context=context)
 
 
 def update_min_num_assistants(request):

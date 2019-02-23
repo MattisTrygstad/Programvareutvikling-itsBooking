@@ -1,0 +1,34 @@
+<button class="uk-button-primary uk-width-small table_button" type="button"
+        id="{{ reservation_interval.index }}-{{ reservations.parent_booking_interval.nk }}"
+{% if not reservations.min_available_assistants %}
+    disabled>Stengt
+{% elif reservations.free_slots > 0 %}
+    uk-toggle="target: #reservation_modal" style="cursor: pointer;" onclick="fill_reservation_form(this)">
+        {{ reservations.free_slots }}/{{ reservations.num_assistants }} ledig
+{% else %}
+     disabled>
+        {{ reservations.free_slots }}/{{ reservations.num_assistants }} ledig
+{% endif %}
+</button>
+
+<div id="reservation_modal" uk-modal>
+    <div class="uk-modal-dialog">
+        <form id="reservation_form" method="post">
+            {{ form }}
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Reservér</h2>
+            </div>
+            <div class="uk-modal-body uk-text-center">
+                <p>Er du sikker på at vil reservere tid hos studass for intervallet:</p>
+                <h5>MANDAG</h5>
+                <h5 class="uk-margin-remove-top">08:15 - 08:30</h5>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Avbryt</button>
+                <input class="uk-button uk-button-primary" type="submit" value="Bekreft"></input>
+            </div>
+        </form>
+    </div>
+</div>

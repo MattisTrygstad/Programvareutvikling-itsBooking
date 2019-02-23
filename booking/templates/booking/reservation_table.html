@@ -4,20 +4,11 @@
 {% block body %}
 
 <style>
-
-tr.reservation_row {
-    display: none;
-}
-
+tr.reservation_row {display: none;}
 tr.booking_interval_row:hover {
     background-color: rgba(250, 250, 150, 0.3) !important;
-    cursor: pointer;
-}
-
-button.table_button {
-    height: 30px;
-}
-
+    cursor: pointer;}
+button.table_button {height: 30px;}
 </style>
 
 <div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
@@ -44,7 +35,7 @@ button.table_button {
                         </td>
                         {% for reservations in reservation_interval.reservations %}
                             <td>
-                                {% include 'booking/student_reservation_button.html' %}
+                                {% include 'booking/reservation_input.html' %}
                             </td>
                         {% endfor %}
                     </tr>
@@ -56,7 +47,15 @@ button.table_button {
 
 <script>
 
-    function reveal_reservations(id) {
+function fill_reservation_form(element) {
+    let data = element.id.split('-');
+    console.log(data);
+    $('#id_reservation_index')[0].value = data[0];
+    $('#id_booking_interval_nk')[0].value = data[1];
+
+}
+
+function reveal_reservations(id) {
 
     let all_booking_interval_rows = document.getElementsByClassName("booking_interval_row");
     for (let elt of all_booking_interval_rows) {
