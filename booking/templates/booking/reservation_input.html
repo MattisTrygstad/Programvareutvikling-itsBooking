@@ -1,5 +1,11 @@
+{% load helpers %}
+
 <button class="uk-button-primary uk-width-small table_button" type="button"
-        id="{{ reservation_interval.index }}-{{ reservations.parent_booking_interval.nk }}"
+        id="{{ reservation_interval.index }}
+            -{{ reservations.parent_booking_interval.nk }}
+            -{{ reservations.parent_booking_interval.get_day_display|nob_day }}
+            -{{ reservation_interval.start }}
+            -{{ reservation_interval.stop }}"
 {% if not reservations.min_available_assistants %}
     disabled>Stengt
 {% elif reservations.free_slots > 0 %}
@@ -22,12 +28,12 @@
             </div>
             <div class="uk-modal-body uk-text-center">
                 <p>Er du sikker på at vil reservere tid hos studass for intervallet:</p>
-                <h5>MANDAG</h5>
-                <h5 class="uk-margin-remove-top">08:15 - 08:30</h5>
+                <h5 id="modal_day">MANDAG</h5>
+                <h5 class="uk-margin-remove-top" id="modal_interval">08:15 - 08:30</h5>
             </div>
             <div class="uk-modal-footer uk-text-right">
-                <button class="uk-button uk-button-default uk-modal-close" type="button">Avbryt</button>
-                <input class="uk-button uk-button-primary" type="submit" value="Bekreft"></input>
+                <input class="uk-button uk-button-default uk-modal-close" type="reset" value="Avbryt">
+                <input class="uk-button uk-button-primary" type="submit" value="Bekreft">
             </div>
         </form>
     </div>

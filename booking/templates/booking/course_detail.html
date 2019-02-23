@@ -6,6 +6,9 @@
 
     <h2>{{ course.course_code }} - {{ course.title }}</h2>
 
+    {% include 'generic/display_success_messages.html' %}
+    {% include 'generic/display_form_errors.html' %}
+
     {% if request.user|in_group:'students' %}
         {% include 'booking/reservation_table.html' %}
     {% elif request.user|in_group:'course_coordinators' or request.user|in_group:'assistants' %}

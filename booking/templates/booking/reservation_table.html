@@ -53,6 +53,8 @@ function fill_reservation_form(element) {
     $('#id_reservation_index')[0].value = data[0];
     $('#id_booking_interval_nk')[0].value = data[1];
 
+    $('#modal_day')[0].innerText = data[2];
+    $('#modal_interval')[0].innerText = data[3] + " - " + data[4];
 }
 
 function reveal_reservations(id) {
