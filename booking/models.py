@@ -148,5 +148,6 @@ class Reservation(models.Model):
         return available_assistants[0]
 
     def save(self, **kwargs):
-        self.assistant = self._get_available_assistant()
-        super().save()
+        if self.pk is None:  # if being created, not updated
+            self.assistant = self._get_available_assistant()
+        super().save(**kwargs)
