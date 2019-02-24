@@ -151,3 +151,10 @@ class Reservation(models.Model):
         if self.pk is None:  # if being created, not updated
             self.assistant = self._get_available_assistant()
         super().save(**kwargs)
+
+    def __str__(self):
+        return f'{self.booking_interval.course.course_code} - ' \
+            f'{time(hour=self.booking_interval.start.hour + self.index//4, minute=(self.index%4)*15).strftime("%H:%M")}-' \
+            f'{time(hour=self.booking_interval.start.hour + (self.index+1)// 4, minute=((self.index+1) % 4) * 15).strftime("%H:%M")} - ' \
+            f'assistant: {self.assistant} - ' \
+            f'student: {self.student}'
