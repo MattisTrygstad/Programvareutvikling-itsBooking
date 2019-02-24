@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from .models import Course
+from .models import Course, BookingInterval
 
 
 class CourseViewTest(TestCase):
@@ -30,12 +30,12 @@ class CourseViewTest(TestCase):
         booking_interval.course.course_coordinator = cc
         booking_interval.course.save()
         self.client.login(username='test', password='123')
-
         response = self.client.get(reverse('update_min_num_assistants'),
                                    {'nk': booking_interval.nk, 'num': new_min_num_assistants})
         self.assertEqual(200, response.status_code)
         # for some reason you need to get the booking_interval object again to detect changes to it
-        self.assertEqual(new_min_num_assistants, self.course.booking_intervals.first().min_available_assistants)
+        booking_interval.refresh_from_db()
+        self.assertEqual(new_min_num_assistants, booking_interval.min_available_assistants)
 
 
 class CourseModelTest(TestCase):
