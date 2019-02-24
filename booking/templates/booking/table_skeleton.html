@@ -45,7 +45,6 @@ function update_min_assistants(element, id, num) {
         // element.setCustomValidity('FY!')
     }
 
-    console.log(id + ' : ' + num)
     $.ajax({
         url: '{% url 'update_min_num_assistants' %}',
         data: {
