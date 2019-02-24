@@ -18,13 +18,11 @@ class CourseDetail(DetailView):
         context['weekdays'] = list(calendar.day_name)[0:5]
         intervals = []
         for hour in range(Course.OPEN_BOOKING_TIME, Course.CLOSE_BOOKING_TIME, Course.BOOKING_INTERVAL_LENGTH):
-            print(BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))[0].assistants.all())
 
             interval = {
                 'start': time(hour),
                 'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
                 'objects': BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object)),
-                #'assistants': BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))[0].assistants.filter(id=request.user.id).exists()
                 'assistants': BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))[0].assistants.values_list('id')
 
             }
