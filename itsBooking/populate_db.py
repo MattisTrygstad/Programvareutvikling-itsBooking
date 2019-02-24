@@ -6,6 +6,33 @@ from django.core import management
 
 from booking.models import Course
 
+
+def setup_course(course, cc):
+    course.course_coordinator = cc
+    course.save()
+    for bi in course.booking_intervals.all():
+        r = random.randint(-1, 7)
+        bi.min_available_assistants = r if r >= 0 else None
+        for i in range(random.randint(0, r+1)):
+            bi.assistants.add(random.choice(assistants))
+        bi.save()
+
+
+def generate_users(group, group_list, number):
+    username = str(group)[:-1]
+    for i in range(len(group_list), len(group_list)+number):
+        if i == 0:
+            u = User.objects.create_user(username=username, password='123')
+        else:
+            u = User.objects.create_user(username=username+str(i), password='123')
+        first_name, *last_name = fake.name().split(' ')
+        u.first_name, u.last_name = first_name, ' '.join(last_name)
+        u.email = fake.email()
+        u.groups.add(group)
+        group_list.append(u)
+        u.save()
+
+
 # flush db
 management.call_command('flush', verbosity=0, interactive=False)
 print("!----DB flushed----!")
@@ -30,22 +57,6 @@ students = []
 assistants = []
 ccs = []
 
-
-def generate_users(group, group_list, number):
-    username = str(group)[:-1]
-    for i in range(len(group_list), len(group_list)+number):
-        if i == 0:
-            u = User.objects.create_user(username=username, password='123')
-        else:
-            u = User.objects.create_user(username=username+str(i), password='123')
-        first_name, *last_name = fake.name().split(' ')
-        u.first_name, u.last_name = first_name, ' '.join(last_name)
-        u.email = fake.email()
-        u.groups.add(group)
-        group_list.append(u)
-        u.save()
-
-
 print("Generating users...")
 generate_users(g_students, students, 10)
 generate_users(g_assistants, assistants, 15)
@@ -65,17 +76,11 @@ for assistant in assistants:
     c_algdat.assistants.add(assistant)
 
 # extra
-c_algdat.course_coordinator = ccs[0]
 c_mat1.students.add(students[0])
 c_med.students.add(students[0])
 
 print("Setting up courses...")
-for bi in c_algdat.booking_intervals.all():
-    r = random.randint(-1, 7)
-    bi.min_available_assistants = r if r >= 0 else None
-    for i in range(random.randint(0, r+1)):
-        bi.assistants.add(random.choice(assistants))
-    bi.save()
+setup_course(c_algdat, ccs[0])
 
 
 print("Saving new data...")
