@@ -20,9 +20,11 @@ g_ccs = Group.objects.create(name='course_coordinators')
 u_admin = User.objects.create_user(username='admin', password='123', is_staff=True, is_superuser=True)
 u_student_1 = User.objects.create_user(username='student', password='123')
 u_assistant_1 = User.objects.create_user(username='assistant', password='123')
+u_assistant_2 = User.objects.create_user(username='assistant2', password='123')
 u_cc_1 = User.objects.create_user(username='cc', password='123')
 u_student_1.groups.add(g_students)
 u_assistant_1.groups.add(g_assistants)
+u_assistant_2.groups.add(g_assistants)
 u_cc_1.groups.add(g_ccs)
 
 # create courses
@@ -33,6 +35,8 @@ c_med = Course.objects.create(title='Innføring i medisin for ikke-medisinere', 
 # add users to courses
 c_algdat.students.add(u_student_1)
 c_algdat.assistants.add(u_assistant_1)
+c_algdat.assistants.add(u_assistant_2)
+
 c_algdat.course_coordinator = u_cc_1
 
 c_mat1.students.add(u_student_1)
