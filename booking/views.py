@@ -9,6 +9,7 @@ from django.views.generic import DetailView
 
 from booking.forms import ReservationForm
 from booking.models import Course, BookingInterval, Reservation
+from itsBooking.templatetags.helpers import name
 
 
 class BookingView(DetailView):
@@ -68,7 +69,7 @@ class BookingView(DetailView):
             return self.get(request, *args, **kwargs)
 
     def get_success_message(self, reservation):
-        return f'Reservasjon opprettet! Din stud. ass. er {reservation.assistant}'
+        return f'Reservasjon opprettet! Din stud. ass. er {name(reservation.assistant)}'
 
 
 def update_min_num_assistants(request):

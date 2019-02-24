@@ -41,7 +41,7 @@ class Course(models.Model):
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        related_name="course",
+        related_name="supervising_course",
     )
 
     def __str__(self):
@@ -91,7 +91,7 @@ class BookingInterval(models.Model):
         User,
         limit_choices_to={'groups__name': "assistants"},
         blank=True,
-        related_name='setup_assistant_hours',
+        related_name='setup_booking_intervals',
     )
     nk = models.CharField(
         max_length=32,
@@ -107,12 +107,10 @@ class BookingInterval(models.Model):
 
     def save(self, **kwargs):
         if not self.nk:
-            secure_hash = hashlib.md5()
-            secure_hash.update(
-                f'{self.start}-{self.get_day_display()}-{self.course}'.encode(
-                    'utf-8'))
-            self.nk = secure_hash.hexdigest()
-        super().save(**kwargs)
+            self.nk = hashlib.md5(
+                f'{self.start}-{self.get_day_display()}-{self.course.course_code}'
+                .encode('utf-8')).hexdigest()
+        super().save()
 
     def __str__(self):
         return f'{self.course.course_code} {self.get_day_display()} {self.start}-{self.end}'
