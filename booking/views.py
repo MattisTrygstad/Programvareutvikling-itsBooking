@@ -1,6 +1,7 @@
 import calendar
 from datetime import time
 
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse
@@ -50,16 +51,24 @@ class BookingView(DetailView):
     def post(self, request, *args, **kwargs):
         form = ReservationForm(request.POST, request.FILES)
         if form.is_valid():
+            # create reservation
             bi = BookingInterval.objects.get(nk=form.cleaned_data['booking_interval_nk'])
             index = form.cleaned_data['reservation_index']
-            Reservation.objects.create(booking_interval=bi, index=index, student=request.user)
+            reservation = Reservation.objects.create(booking_interval=bi, index=index, student=request.user)
+
+            # add success message
+            success_message = self.get_success_message(reservation)
+            if success_message:
+                messages.success(request, success_message)
+
             self.object = self.get_object()
             return self.render_to_response(context=self.get_context_data())
         else:
-            self.object = self.get_object()
-            context = self.get_context_data()
-            context['form'] = form
-            return self.render_to_response(context=context)
+            messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
+            return self.get(request, *args, **kwargs)
+
+    def get_success_message(self, reservation):
+        return f'Reservasjon opprettet! Din stud. ass. er {reservation.assistant}'
 
 
 def update_min_num_assistants(request):

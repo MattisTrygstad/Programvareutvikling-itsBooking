@@ -14,4 +14,5 @@ class ReservationForm(forms.Form):
         reserved_assistants = User.objects.filter(bookings__index=index)
         bi_assistants = bi.assistants.all()
         available_assistants = bi_assistants.difference(reserved_assistants)  # all assistants minus reserved ones
-        assert available_assistants.count() > 0, 'No assistants available for this reservation interval'
+        if available_assistants.count() <= 0:
+            raise forms.ValidationError('No assistants available for this reservation interval')

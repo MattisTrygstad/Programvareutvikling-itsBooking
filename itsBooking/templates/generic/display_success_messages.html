@@ -1,9 +1,0 @@
-{% for message in messages %}
-    <div class="uk-margin uk-width-medium">
-        <div class="uk-alert-success message
-            {% if message.tags %} {{ message.tags }}{% endif %}" uk-alert>
-            <a class="uk-alert-close" uk-close></a>
-            <p>{{ message }}</p>
-        </div>
-    </div>
-{% endfor %}
