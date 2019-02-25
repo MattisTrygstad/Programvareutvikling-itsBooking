@@ -56,8 +56,10 @@ def make_assistants_available(request):
     else:
         booking_interval.assistants.remove(request.user.id)
         make_available = True
+    available_assistants_count=booking_interval.assistants.all().count()
     data = {
         'make_available': make_available,
+        'available_assistants_count': available_assistants_count,
     }
     return JsonResponse(data)
 
