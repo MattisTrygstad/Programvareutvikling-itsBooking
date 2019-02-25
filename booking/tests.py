@@ -60,3 +60,34 @@ class CourseModelTest(TestCase):
         self.assertEqual(course.booking_intervals.filter(course=course).count(), 25)
         # assert that slugs are generated on save()
         self.assertEqual(course.course_code, course.slug)
+
+
+class MakeAssistantsAvailableTest(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.course = Course.objects.create(title='algdat', course_code='tdt4125')
+        self.username = 'TEST_USER'
+        self.password = 'TEST_PASS'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.booking_interval = self.course.booking_intervals.first()
+        self.booking_interval.course.assistants.add(self.user)
+        self.client.login(username=self.username, password=self.password)
+
+    def test_unauthorized_registration_for_interval(self):
+        """An user that is not registered as an assistant in the course should not be able to make
+        himself available as an assistant."""
+
+        self.client.logout()
+        response = self.client.get(reverse('make_assistants_available'),
+                                   {'nk': self.booking_interval.nk})
+        self.assertEqual(403, response.status_code, msg="unauthorized users should not be able to access this view")
+
+    def test_authorized_registration_for_interval(self):
+        """Assistant registers successfully for an interval"""
+
+        response = self.client.get(reverse('make_assistants_available'),
+                                   {'nk': self.booking_interval.nk})
+        self.assertEqual(200, response.status_code, msg="authorized users should be able to access this view")
+
+
