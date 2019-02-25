@@ -51,22 +51,26 @@ class BookingView(DetailView):
 
     def post(self, request, *args, **kwargs):
         form = ReservationForm(request.POST, request.FILES)
-        if form.is_valid():
-            # create reservation
-            bi = BookingInterval.objects.get(nk=form.cleaned_data['booking_interval_nk'])
-            index = form.cleaned_data['reservation_index']
-            reservation = Reservation.objects.create(booking_interval=bi, index=index, student=request.user)
+        if request.user.groups.filter(name='students').exists():
+            if form.is_valid():
+                # create reservation
+                bi = BookingInterval.objects.get(nk=form.cleaned_data['booking_interval_nk'])
+                index = form.cleaned_data['reservation_index']
+                reservation = Reservation.objects.create(booking_interval=bi, index=index, student=request.user)
 
-            # add success message
-            success_message = self.get_success_message(reservation)
-            if success_message:
-                messages.success(request, success_message)
+                # add success message
+                success_message = self.get_success_message(reservation)
+                if success_message:
+                    messages.success(request, success_message)
 
-            self.object = self.get_object()
-            return self.render_to_response(context=self.get_context_data())
+                self.object = self.get_object()
+                return self.render_to_response(context=self.get_context_data())
+            else:
+                # dont use form.errors, they force hidden form fields to be shown
+                messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
+                return self.get(request, *args, **kwargs)
         else:
-            messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
-            return self.get(request, *args, **kwargs)
+            raise PermissionDenied()
 
     def get_success_message(self, reservation):
         return f'Reservasjon opprettet! Din stud. ass. er {name(reservation.assistant)}'
