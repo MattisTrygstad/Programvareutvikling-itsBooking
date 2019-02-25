@@ -26,7 +26,7 @@
                                 onchange="update_min_assistants(this, this.id, this.value);"
                                 style="width: 60px;">
                             {% else %}
-                                <div class="uk-text-center">{{ booking_interval.assistants.all.count }} / {{ booking_interval.min_available_assistants }} påmeldte</div>
+                                <div class="uk-text-center"><div id="{{ booking_interval.nk }}_available_assistants" style="display: inline;">{{ booking_interval.assistants.all.count }} </div> / {{ booking_interval.min_available_assistants }} påmeldte</div>
                                 <input type="button" name="add assistants" id="{{ booking_interval.nk }}"
                                 onclick="make_assistants_available(this, this.id);"
                                 {% if request.user not in booking_interval.assistants.all %}
@@ -81,9 +81,9 @@ function make_assistants_available(element, id) {
         dataType: 'json',
         success: function(data) {
             if(data.make_available){
-                make_available(id);
+                make_available(id,data.available_assistants_count);
             } else {
-                make_not_available(id);
+                make_not_available(id,data.available_assistants_count);
             }
         }
     })
@@ -93,11 +93,13 @@ function make_assistants_available(element, id) {
 function make_available(id, count){
     document.getElementById(id).setAttribute('value','Meld opp');
     document.getElementById(id).setAttribute('class','uk-button uk-button-primary uk-button-small uk-width-1-1 uk-width-expand');
+    document.getElementById(id+"_available_assistants").innerHTML = count+"";
 }
 
 function make_not_available(id, count){
     document.getElementById(id).setAttribute('value','Meld av');
     document.getElementById(id).setAttribute('class','uk-button uk-button-danger uk-button-small uk-width-1-1 uk-width-expand')
+    document.getElementById(id+"_available_assistants").innerHTML = count+"";
 }
 
 </script>
