@@ -46,6 +46,10 @@ def update_min_num_assistants(request):
 def make_assistants_available(request):
     nk = request.GET.get('nk', None)
     booking_interval = BookingInterval.objects.get(nk=nk)
+
+
+    if not booking_interval.course.assistants.filter(id=request.user.id).exists():
+        raise PermissionDenied()
     if not booking_interval.assistants.filter(id=request.user.id).exists():
         booking_interval.assistants.add(request.user.id)
         make_available=False
