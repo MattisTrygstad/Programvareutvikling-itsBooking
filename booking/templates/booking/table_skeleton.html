@@ -26,8 +26,22 @@
                                 onchange="update_min_assistants(this, this.id, this.value);"
                                 style="width: 60px;">
                             {% else %}
-                                <input type="checkbox" class="uk-checkbox">
-                            {% endif %}
+                                <div class="uk-text-center"><div id="{{ booking_interval.nk }}_available_assistants" style="display: inline;">{{ booking_interval.assistants.all.count }} </div> / {{ booking_interval.min_available_assistants }} påmeldte</div>
+                                <input type="button" name="add assistants" id="{{ booking_interval.nk }}"
+                                onclick="make_assistants_available(this, this.id);"
+                                {% if request.user not in booking_interval.assistants.all %}
+                                        {% if booking_interval.min_available_assistants == 0 %}
+                                            disabled value="Stengt" 
+                                        {% elif booking_interval.min_available_assistants <= booking_interval.assistants.all.count%}
+                                            disabled value="Fullt" 
+                                        {% endif %}
+                                       class="uk-button uk-button-primary uk-button-small uk-width-1-1 uk-width-expand"
+                                       value="Meld opp"
+                                {% else %}
+                                    value="Meld av"
+                                    class="uk-button uk-button-danger uk-button-small uk-width-1-1 uk-width-expand"
+                                {% endif %}>
+                        {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
@@ -54,7 +68,40 @@ function update_min_assistants(element, id, num) {
         },
         dataType: 'json',
     })
+
 }
+
+function make_assistants_available(element, id) {
+
+    $.ajax({
+        url: '{% url 'make_assistants_available' %}',
+        data: {
+            'nk': id,
+        },
+        dataType: 'json',
+        success: function(data) {
+            if(data.make_available){
+                make_available(id,data.available_assistants_count);
+            } else {
+                make_not_available(id,data.available_assistants_count);
+            }
+        }
+    })
+
+}
+
+function make_available(id, count){
+    document.getElementById(id).setAttribute('value','Meld opp');
+    document.getElementById(id).setAttribute('class','uk-button uk-button-primary uk-button-small uk-width-1-1 uk-width-expand');
+    document.getElementById(id+"_available_assistants").innerHTML = count+"";
+}
+
+function make_not_available(id, count){
+    document.getElementById(id).setAttribute('value','Meld av');
+    document.getElementById(id).setAttribute('class','uk-button uk-button-danger uk-button-small uk-width-1-1 uk-width-expand')
+    document.getElementById(id+"_available_assistants").innerHTML = count+"";
+}
+
 </script>
 
 {% endblock body %}

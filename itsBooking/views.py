@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -30,7 +31,8 @@ class LoginView(SuccessMessageMixin, LoginView):
 
 
 class LogoutView(SuccessMessageMixin, LogoutView):
-    pass
+    def get(self, request):
+        return logout(request)
 
 
 def populate_db(request):
@@ -39,3 +41,4 @@ def populate_db(request):
         messages.success(request, 'Database flushed and populated successfully!')
         return LogoutView.as_view()(request)
     raise PermissionDenied()
+
