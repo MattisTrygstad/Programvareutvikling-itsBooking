@@ -116,6 +116,55 @@ class BookingInterval(models.Model):
         return f'{self.course.course_code} {self.get_day_display()} {self.start}-{self.end}'
 
 
+class ReservationInterval(models.Model):
+    booking_interval = models.ForeignKey(
+        BookingInterval,
+        related_name='reservations',
+        on_delete=models.CASCADE,
+    )
+    start = models.TimeField()
+    end = models.TimeField()
+
+    def _get_available_assistant(self):
+        reserved_assistants = User.objects.filter(bookings__index=self.index)
+        bi_assistants = self.booking_interval.assistants.all()
+        available_assistants = bi_assistants.difference(reserved_assistants)  # all assistants minus reserved ones
+        assert available_assistants.count() > 0, 'No assistants available for this reservation interval'
+        return available_assistants[0]
+
+
+class ReservationConnection(models.Model):
+    reservation = models.ForeignKey(
+        ReservationInterval,
+        on_delete=models.CASCADE,
+        related_name='connections',
+    )
+    student = models.ForeignKey(
+        User,
+        limit_choices_to={'groups__name': "students"},
+        related_name='reservations',
+        on_delete=models.CASCADE,
+    )
+    assistant = models.ForeignKey(
+        User,
+        limit_choices_to={'groups__name': "assistants"},
+        related_name='student_connections',
+        on_delete=models.CASCADE,
+    )
+
+    def _get_available_assistant(self):
+        all_bi_assistants = self.reservation.booking_interval.assistants.all()
+        reserved_assistants = User.objects.filter(student_connections__in=self.reservation.connections.all())
+        available_assistants = all_bi_assistants.difference(reserved_assistants)  # all assistants minus reserved ones
+        assert available_assistants.count() > 0, 'No assistants available for this reservation interval'
+        return available_assistants[0]
+
+    def save(self, **kwargs):
+        if self.pk is None:  # only runs on object creation
+            self.assistant = self._get_available_assistant()
+        super().save(**kwargs)
+
+"""
 class Reservation(models.Model):
     booking_interval = models.ForeignKey(
         BookingInterval,
@@ -156,3 +205,4 @@ class Reservation(models.Model):
             f'{time(hour=self.booking_interval.start.hour + (self.index+1)// 4, minute=((self.index+1) % 4) * 15).strftime("%H:%M")} - ' \
             f'assistant: {self.assistant} - ' \
             f'student: {self.student}'
+"""

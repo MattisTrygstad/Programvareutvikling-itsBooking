@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.views.generic import DetailView
 
 from booking.forms import ReservationForm
-from booking.models import Course, BookingInterval, Reservation
+from booking.models import Course, BookingInterval
 from itsBooking.templatetags.helpers import name
 
 
