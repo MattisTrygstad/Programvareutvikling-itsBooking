@@ -1,4 +1,7 @@
+
+
 from django.contrib.auth.models import User
+import json
 from django.db import IntegrityError
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -90,4 +93,48 @@ class MakeAssistantsAvailableTest(TestCase):
                                    {'nk': self.booking_interval.nk})
         self.assertEqual(200, response.status_code, msg="authorized users should be able to access this view")
 
+    def test_assistant_registering_for_interval_in_wrong_course(self):
+        """
+        An assistant that is not an assistant in a specific course should not be able to register for an interval
+        """
+        # Create course that the assistant is not registered for
+        self.course = Course.objects.create(title='matematikk 1', course_code='tdt3423')
+        self.booking_interval = self.course.booking_intervals.first()
+
+        response = self.client.get(reverse('make_assistants_available'),
+                                   {'nk': self.booking_interval.nk})
+        self.assertEqual(403, response.status_code, msg="Only assistants registered for the course should be able to register for intervals")
+
+    def test_make_available_for_interval(self):
+        """
+        The first assistant registering for an interval
+        should result in make_available=False and available_assistants_count=1
+        """
+        response = self.client.get(reverse('make_assistants_available'),
+                                   {'nk': self.booking_interval.nk})
+        # Convert the content of type bytes to a dictionary.
+        content = response.content
+        content = json.loads(content.decode('utf-8'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(content['make_available'], False)
+        self.assertEqual(content['available_assistants_count'], 1)
+
+    def test_make_unavailable_for_interval(self):
+        """
+        An assistant makes himself unavailable for an interval with only one assistant
+         should result in make_available=True and available_assistants_count=0
+         """
+        #Registering the assistant for the interval
+        self.booking_interval.assistants.add(self.user)
+
+        response = self.client.get(reverse('make_assistants_available'),
+                                   {'nk': self.booking_interval.nk})
+        # Convert the content of type bytes to a dictionary.
+        content = response.content
+        content = json.loads(content.decode('utf-8'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(content['make_available'], True)
+        self.assertEqual(content['available_assistants_count'], 0)
 
