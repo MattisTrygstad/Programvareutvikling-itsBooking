@@ -64,6 +64,7 @@ generate_users(g_students, students, 3)
 generate_users(g_assistants, assistants, 8)
 generate_users(g_ccs, ccs, 2)
 
+
 # create courses
 c_algdat = Course.objects.create(title='Algoritmer og datastrukturer', course_code='TDT4120')
 c_mat1 = Course.objects.create(title='Matematikk 1', course_code='TMA4100')
@@ -80,6 +81,7 @@ for assistant in assistants:
 # extra
 c_mat1.students.add(students[0])
 c_med.students.add(students[0])
+
 
 print("Setting up courses...")
 setup_course(c_algdat, ccs[0])

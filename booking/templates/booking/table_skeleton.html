@@ -2,7 +2,7 @@
 {% load helpers %}
 
 {% block body %}
-<div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom">
+<div class="uk-container uk-container-center uk-margin-top uk-margin-large-bottom uk-overflow-auto">
     <table class="uk-table uk-table-striped uk-table-small uk-table-middle">
         <thead>
             <tr>
@@ -16,20 +16,7 @@
             {% for interval in intervals %}
                 <tr>
                     <td>{{ interval.start }} - {{ interval.stop }}</td>
-                    {% for booking_interval in interval.booking_intervals %}
-                        <td>
-                            {% if user|in_group:"course_coordinators" %}
-                                <input type="number" name="min num of assistants"
-                                id="{{ booking_interval.nk }}" min="0" step="1"
-                                value="{{ booking_interval.max_available_assistants }}"
-                                class="uk-input uk-form-blank"
-                                onchange="update_min_assistants(this, this.id, this.value);"
-                                style="width: 60px;">
-                            {% else %}
-                                <input type="checkbox" class="uk-checkbox">
-                            {% endif %}
-                        </td>
-                    {% endfor %}
+                    {% include 'booking/table/booking_interval_td.html' %}
                 </tr>
             {% endfor %}
         </tbody>
@@ -52,7 +39,40 @@ function update_min_assistants(element, id, num) {
         },
         dataType: 'json',
     })
+
 }
+
+function bi_registration_switch(element, id) {
+
+    $.ajax({
+        url: '{% url 'bi_registration_switch' %}',
+        data: {
+            'nk': id,
+        },
+        dataType: 'json',
+        success: function(data) {
+            if(data.registration_available){
+                make_registration_available(id,data.available_assistants_count);
+            } else {
+                make_registration_unavailable(id,data.available_assistants_count);
+            }
+        }
+    })
+
+}
+
+function make_registration_available(id, count){
+    document.getElementById(id).setAttribute('value','Meld opp');
+    document.getElementById(id).setAttribute('class','uk-button uk-button-primary uk-button-small uk-width-1-1 uk-width-expand');
+    document.getElementById(id+"_available_assistants").innerHTML = count+"";
+}
+
+function make_registration_unavailable(id, count){
+    document.getElementById(id).setAttribute('value','Meld av');
+    document.getElementById(id).setAttribute('class','uk-button uk-button-danger uk-button-small uk-width-1-1 uk-width-expand')
+    document.getElementById(id+"_available_assistants").innerHTML = count+"";
+}
+
 </script>
 
 {% endblock body %}
