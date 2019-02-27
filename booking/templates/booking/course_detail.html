@@ -1,4 +1,7 @@
+{% extends 'itsBooking/base.html' %}
 {% load helpers %}
+
+{% block body %}
 
 <div class="uk-container uk-container-medium">
 
@@ -13,3 +16,5 @@
         {% include 'booking/table_skeleton.html' %}
     {% endif %}
 </div>
+
+{% endblock %}
