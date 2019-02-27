@@ -42,11 +42,10 @@ function update_min_assistants(element, id, num) {
 
     if (num < element.min) {
         element.value = 0;
-        // element.setCustomValidity('FY!')
     }
 
     $.ajax({
-        url: '{% url 'update_min_num_assistants' %}',
+        url: '{% url 'update_max_num_assistants' %}',
         data: {
             'nk': id,
             'num': num,
