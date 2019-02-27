@@ -82,14 +82,14 @@ class MakeAssistantsAvailableTest(TestCase):
         himself available as an assistant."""
 
         self.client.logout()
-        response = self.client.get(reverse('make_assistants_available'),
+        response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
         self.assertEqual(403, response.status_code, msg="unauthorized users should not be able to access this view")
 
     def test_authorized_registration_for_interval(self):
         """Assistant registers successfully for an interval"""
 
-        response = self.client.get(reverse('make_assistants_available'),
+        response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
         self.assertEqual(200, response.status_code, msg="authorized users should be able to access this view")
 
@@ -101,7 +101,7 @@ class MakeAssistantsAvailableTest(TestCase):
         self.course = Course.objects.create(title='matematikk 1', course_code='tdt3423')
         self.booking_interval = self.course.booking_intervals.first()
 
-        response = self.client.get(reverse('make_assistants_available'),
+        response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
         self.assertEqual(403, response.status_code, msg="Only assistants registered for the course should be able to register for intervals")
 
@@ -110,7 +110,7 @@ class MakeAssistantsAvailableTest(TestCase):
         The first assistant registering for an interval
         should result in make_available=False and available_assistants_count=1
         """
-        response = self.client.get(reverse('make_assistants_available'),
+        response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
         # Convert the content of type bytes to a dictionary.
         content = response.content
@@ -128,7 +128,7 @@ class MakeAssistantsAvailableTest(TestCase):
         #Registering the assistant for the interval
         self.booking_interval.assistants.add(self.user)
 
-        response = self.client.get(reverse('make_assistants_available'),
+        response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
         # Convert the content of type bytes to a dictionary.
         content = response.content

@@ -1,10 +1,8 @@
-{% extends 'itsBooking/index.html' %}
 {% load helpers %}
-{% block body %}
-<div class="uk-container uk-container-small">
+
+<div class="uk-container uk-container-medium">
 
     <h2>{{ course.course_code }} - {{ course.title }}</h2>
 
     {% include 'booking/table_skeleton.html' %}
 </div>
-{% endblock %}
