@@ -9,10 +9,10 @@ from django.template.defaultfilters import slugify
 
 
 class Course(models.Model):
-    OPEN_BOOKING_TIME = 8
-    CLOSE_BOOKING_TIME = 18
-    BOOKING_INTERVAL_LENGTH = 2
-    RESERVATION_LENGTH = 15
+    OPEN_BOOKING_TIME = 8  # hour
+    CLOSE_BOOKING_TIME = 18  # hour
+    BOOKING_INTERVAL_LENGTH = 2  # hours
+    RESERVATION_LENGTH = 15  # minutes
     NUM_DAYS_IN_WORK_WEEK = 5
     NUM_RESERVATIONS_IN_BOOKING_INTERVAL = (BOOKING_INTERVAL_LENGTH * 60) // RESERVATION_LENGTH
 
