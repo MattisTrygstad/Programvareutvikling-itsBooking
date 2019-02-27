@@ -28,7 +28,7 @@
                             {% else %}
                                 <div class="uk-text-center"><div id="{{ booking_interval.nk }}_available_assistants" style="display: inline;">{{ booking_interval.assistants.all.count }} </div> / {{ booking_interval.min_available_assistants }} påmeldte</div>
                                 <input type="button" name="add assistants" id="{{ booking_interval.nk }}"
-                                onclick="make_assistants_available(this, this.id);"
+                                onclick="bi_registration_switch(this, this.id);"
                                 {% if request.user not in booking_interval.assistants.all %}
                                         {% if booking_interval.min_available_assistants == 0 %}
                                             disabled value="Stengt" 
@@ -71,32 +71,32 @@ function update_min_assistants(element, id, num) {
 
 }
 
-function make_assistants_available(element, id) {
+function bi_registration_switch(element, id) {
 
     $.ajax({
-        url: '{% url 'make_assistants_available' %}',
+        url: '{% url 'bi_registration_switch' %}',
         data: {
             'nk': id,
         },
         dataType: 'json',
         success: function(data) {
-            if(data.make_available){
-                make_available(id,data.available_assistants_count);
+            if(data.registration_available){
+                make_registration_available(id,data.available_assistants_count);
             } else {
-                make_not_available(id,data.available_assistants_count);
+                make_registration_unavailable(id,data.available_assistants_count);
             }
         }
     })
 
 }
 
-function make_available(id, count){
+function make_registration_available(id, count){
     document.getElementById(id).setAttribute('value','Meld opp');
     document.getElementById(id).setAttribute('class','uk-button uk-button-primary uk-button-small uk-width-1-1 uk-width-expand');
     document.getElementById(id+"_available_assistants").innerHTML = count+"";
 }
 
-function make_not_available(id, count){
+function make_registration_unavailable(id, count){
     document.getElementById(id).setAttribute('value','Meld av');
     document.getElementById(id).setAttribute('class','uk-button uk-button-danger uk-button-small uk-width-1-1 uk-width-expand')
     document.getElementById(id+"_available_assistants").innerHTML = count+"";

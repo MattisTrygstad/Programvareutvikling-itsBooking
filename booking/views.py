@@ -43,7 +43,7 @@ def update_min_num_assistants(request):
 
     raise PermissionDenied()
 
-def make_assistants_available(request):
+def bi_registration_switch(request):
     nk = request.GET.get('nk', None)
     booking_interval = BookingInterval.objects.get(nk=nk)
 
@@ -52,13 +52,13 @@ def make_assistants_available(request):
         raise PermissionDenied()
     if not booking_interval.assistants.filter(id=request.user.id).exists():
         booking_interval.assistants.add(request.user.id)
-        make_available=False
+        registration_available=False
     else:
         booking_interval.assistants.remove(request.user.id)
-        make_available = True
+        registration_available = True
     available_assistants_count=booking_interval.assistants.all().count()
     data = {
-        'make_available': make_available,
+        'registration_available': registration_available,
         'available_assistants_count': available_assistants_count,
     }
     return JsonResponse(data)
