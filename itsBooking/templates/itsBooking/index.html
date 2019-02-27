@@ -5,7 +5,7 @@
 <div class="uk-container uk-container-small">
     <h1 class="uk-heading-primary">Welcome!</h1>
     <a class="uk-button uk-button-default uk-button-small" href="{% url 'populate' %}">Populate DB</a>
-    {% include 'generic/display_success_messages.html' %}
+    {% include 'generic/display_messages.html' %}
 
     <div class="uk-margin">
     {% if user|in_group:"students" %}
@@ -13,7 +13,7 @@
     {% elif user|in_group:"assistants" %}
         {% include 'booking/course_list.html' with courses=user.assisting_courses.all %}
     {% elif user|in_group:"course_coordinators" %}
-        {% include 'booking/course_grid_box.html' with course=user.course %}
+        {% include 'booking/course_grid_box.html' with course=user.supervising_course %}
     {% endif %}
     </div>
 </div>

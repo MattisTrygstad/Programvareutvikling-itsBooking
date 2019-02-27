@@ -1,8 +1,8 @@
 from django.urls import path
 
-from booking.views import CourseDetail, update_min_num_assistants
+from booking.views import BookingView, update_max_num_assistants
 
 urlpatterns = [
-    path('<str:slug>/', CourseDetail.as_view(), name='course_detail'),
-    path('update', update_min_num_assistants, name='update_min_num_assistants'),
+    path('<str:slug>/', BookingView.as_view(), name='course_detail'),
+    path('update', update_max_num_assistants, name='update_max_num_assistants'),
 ]

@@ -1,9 +1,9 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from .models import Course
+from .models import Course, BookingInterval
 
 
 class CourseViewTest(TestCase):
@@ -16,13 +16,13 @@ class CourseViewTest(TestCase):
         response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
         self.assertEqual(200, response.status_code)
 
-    def test_min_assistants_update(self):
+    def test_max_assistants_update(self):
         # setup variables
         booking_interval = self.course.booking_intervals.first()
-        new_min_num_assistants = 3
+        new_max_num_assistants = 3
 
-        response = self.client.get(reverse('update_min_num_assistants'),
-                                   {'nk': booking_interval.nk, 'num': new_min_num_assistants})
+        response = self.client.get(reverse('update_max_num_assistants'),
+                                   {'nk': booking_interval.nk, 'num': new_max_num_assistants})
         self.assertEqual(403, response.status_code, msg="unauthorized users should not be able to access this view")
 
         # set the course's course_coordinator and login as them
@@ -30,12 +30,57 @@ class CourseViewTest(TestCase):
         booking_interval.course.course_coordinator = cc
         booking_interval.course.save()
         self.client.login(username='test', password='123')
-
-        response = self.client.get(reverse('update_min_num_assistants'),
-                                   {'nk': booking_interval.nk, 'num': new_min_num_assistants})
+        response = self.client.get(reverse('update_max_num_assistants'),
+                                   {'nk': booking_interval.nk, 'num': new_max_num_assistants})
         self.assertEqual(200, response.status_code)
         # for some reason you need to get the booking_interval object again to detect changes to it
-        self.assertEqual(new_min_num_assistants, self.course.booking_intervals.first().min_available_assistants)
+        booking_interval.refresh_from_db()
+        self.assertEqual(new_max_num_assistants, booking_interval.max_available_assistants)
+
+
+class ReservationTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.course = Course.objects.create(title='algdat', course_code='tdt4125')
+        self.username = 'STUDENT'
+        self.password = '123'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.client.login(username=self.username, password=self.password)
+        self.student_group = Group.objects.create(name='students')
+        self.user.groups.add(self.student_group)
+
+    def test_make_reservation_deny_not_student(self):
+        self.student_group.user_set.remove(self.user)
+        response = self.client.post(reverse(
+            'course_detail', kwargs={'slug': self.course.slug}
+            ), {'booking_interval_nk': self.course.booking_intervals.first().nk, 'reservation_index': 0}
+        )
+        self.assertEqual(403, response.status_code)
+
+    def test_make_reservation_deny_not_available(self):
+        response = self.client.post(reverse(
+            'course_detail', kwargs={'slug': self.course.slug}
+            ), {'reservation_pk': self.course.booking_intervals.first().reservation_intervals.first().pk}
+        )
+        messages = list(response.context['messages'])
+        self.assertEqual(40, messages[0].level)  # level:40 => error
+
+    def test_make_reservation_deny_success(self):
+        # setup assistant and booking interval
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+
+        response = self.client.post(reverse(
+            'course_detail', kwargs={'slug': self.course.slug}
+            ), {'reservation_pk': self.reservation.pk}
+        )
+        messages = list(response.context['messages'])
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(25, messages[0].level)  # level:25 => success
 
 
 class CourseModelTest(TestCase):
