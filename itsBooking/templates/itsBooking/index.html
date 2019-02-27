@@ -3,25 +3,6 @@
 {% load static %}
 
 
-{% block header %}
-<nav class="uk-navbar-container uk-margin">
-    <div class="uk-container uk-container-small">
-        <div class="uk-navbar">
-            <div class="uk-navbar-left">
-                <div class="uk-navbar-item">
-                    <img src="{% static "itsbooking.png" %}" width="150px" />
-                </div>
-                <ul class="uk-navbar-nav">
-                    <li><a href="{% url 'populate' %}">Populate DB</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                    <li><a href=""></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</nav>
-{% endblock %}
-
 {% block body %}
 <div class="uk-container uk-container-small">
     {% include 'generic/display_messages.html' %}
