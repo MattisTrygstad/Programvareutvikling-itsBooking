@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.views.generic import DetailView
 
 from booking.forms import ReservationForm
-from booking.models import Course, BookingInterval
+from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
 from itsBooking.templatetags.helpers import name
 
 
@@ -25,23 +25,15 @@ class BookingView(DetailView):
             interval = {
                 'start': time(hour),
                 'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
-                'objects': booking_intervals,
-                'interval_reservation_intervals': [
-                    {
-                        'start': time(hour=hour + (15*i)//60, minute=(15*i) % 60),
-                        'stop': time(hour=hour + (15*(i+1))//60, minute=(15*(i+1)) % 60),
-                        'index': i,
-                        'reservations': [
-                            {
-                             'free_slots': bi.assistants.count() - bi.reservations.filter(index=i).count(),
-                             'num_assistants': bi.assistants.count(),
-                             'min_available_assistants': bi.min_available_assistants,
-                             'parent_booking_interval': bi
-                            }
-                            for bi in booking_intervals
-                        ],
+                'booking_intervals': booking_intervals,
+                'reservation_intervals': [{
+                    'start': time(hour=hour + (15 * i) // 60, minute=(15 * i) % 60),
+                    'stop': time(hour=hour + (15 * (i + 1)) // 60, minute=(15 * (i + 1)) % 60),
+                    'reservations': ReservationInterval.objects.filter(
+                            Q(index=i) & Q(booking_interval__in=booking_intervals)
+                        ),
                     }
-                    for i in range(0, 8)
+                    for i in range(Course.NUM_RESERVATIONS_IN_BOOKING_INTERVAL)
                 ]
             }
             intervals.append(interval)
@@ -54,12 +46,13 @@ class BookingView(DetailView):
         if request.user.groups.filter(name='students').exists():
             if form.is_valid():
                 # create reservation
-                bi = BookingInterval.objects.get(nk=form.cleaned_data['booking_interval_nk'])
-                index = form.cleaned_data['reservation_index']
-                reservation = Reservation.objects.create(booking_interval=bi, index=index, student=request.user)
+                reservation_interval = ReservationInterval.objects.get(pk=form.cleaned_data['reservation_pk'])
+                reservation_connection = ReservationConnection.objects.create(
+                    reservation_interval=reservation_interval, student=request.user
+                )
 
                 # add success message
-                success_message = self.get_success_message(reservation)
+                success_message = self.get_success_message(reservation_connection)
                 if success_message:
                     messages.success(request, success_message)
 
@@ -72,8 +65,8 @@ class BookingView(DetailView):
         else:
             raise PermissionDenied()
 
-    def get_success_message(self, reservation):
-        return f'Reservasjon opprettet! Din stud. ass. er {name(reservation.assistant)}'
+    def get_success_message(self, reservation_connection):
+        return f'Reservasjon opprettet! Din stud. ass. er {name(reservation_connection.assistant)}'
 
 
 def update_min_num_assistants(request):
@@ -82,7 +75,7 @@ def update_min_num_assistants(request):
     booking_interval = BookingInterval.objects.get(nk=nk)
 
     if request.user == booking_interval.course.course_coordinator:
-        booking_interval.min_available_assistants = num if num != '' else None
+        booking_interval.max_available_assistants = num
         booking_interval.save()
         return HttpResponse('')
 

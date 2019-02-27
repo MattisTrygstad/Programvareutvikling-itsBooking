@@ -17,6 +17,11 @@ def get_norwegian_day_name(day):
     return translation.get(day, None)
 
 
+@register.filter('available_slots')
+def get_available_reservation_slots(reservation):
+    return reservation.booking_interval.assistants.count() - reservation.connections.count()
+
+
 @register.filter
 def name(user):
     if user.first_name and user.last_name:

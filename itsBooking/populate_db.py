@@ -11,10 +11,12 @@ def setup_course(course, cc):
     course.course_coordinator = cc
     course.save()
     for bi in course.booking_intervals.all():
-        r = random.randint(-1, 7)
-        bi.min_available_assistants = r if r >= 0 else None
+        r = random.randint(0, 5)
+        bi.max_available_assistants = r
         for i in range(random.randint(0, r+1)):
             bi.assistants.add(random.choice(assistants))
+            if random.randint(0, 2) == 2:
+                break
         bi.save()
 
 
@@ -58,8 +60,8 @@ assistants = []
 ccs = []
 
 print("Generating users...")
-generate_users(g_students, students, 10)
-generate_users(g_assistants, assistants, 15)
+generate_users(g_students, students, 3)
+generate_users(g_assistants, assistants, 8)
 generate_users(g_ccs, ccs, 2)
 
 # create courses

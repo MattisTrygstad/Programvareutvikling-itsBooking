@@ -35,7 +35,7 @@ class CourseViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         # for some reason you need to get the booking_interval object again to detect changes to it
         booking_interval.refresh_from_db()
-        self.assertEqual(new_min_num_assistants, booking_interval.min_available_assistants)
+        self.assertEqual(new_min_num_assistants, booking_interval.max_available_assistants)
 
 
 class ReservationTest(TestCase):

@@ -28,12 +28,12 @@ button.table_button {height: 30px;}
                     <td colspan="4" class="uk-text-center">VIS MER</td>
                     <td></td>
                 </tr>
-                {% for reservation_interval in interval.interval_reservation_intervals %}
+                {% for reservation_interval in interval.reservation_intervals %}
                     <tr class="reservation_row {{ interval.start }}">
                         <td>
                             {{ reservation_interval.start }} - {{ reservation_interval.stop }}
                         </td>
-                        {% for reservations in reservation_interval.reservations %}
+                        {% for reservation in reservation_interval.reservations %}
                             <td>
                                 {% include 'booking/reservation_input.html' %}
                             </td>
@@ -49,11 +49,10 @@ button.table_button {height: 30px;}
 
 function fill_reservation_form(element) {
     let data = element.id.split('-');
-    $('#id_reservation_index')[0].value = data[0];
-    $('#id_booking_interval_nk')[0].value = data[1];
+    $('#id_reservation_pk')[0].value = data[0];
 
-    $('#modal_day')[0].innerText = data[2];
-    $('#modal_interval')[0].innerText = data[3] + " - " + data[4];
+    $('#modal_day')[0].innerText = data[1];
+    $('#modal_interval')[0].innerText = data[2] + " - " + data[3];
 }
 
 function reveal_reservations(id) {

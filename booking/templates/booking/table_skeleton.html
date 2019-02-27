@@ -16,12 +16,12 @@
             {% for interval in intervals %}
                 <tr>
                     <td>{{ interval.start }} - {{ interval.stop }}</td>
-                    {% for booking_interval in interval.objects %}
+                    {% for booking_interval in interval.booking_intervals %}
                         <td>
                             {% if user|in_group:"course_coordinators" %}
                                 <input type="number" name="min num of assistants"
                                 id="{{ booking_interval.nk }}" min="0" step="1"
-                                value="{{ booking_interval.min_available_assistants }}"
+                                value="{{ booking_interval.max_available_assistants }}"
                                 class="uk-input uk-form-blank"
                                 onchange="update_min_assistants(this, this.id, this.value);"
                                 style="width: 60px;">
@@ -40,7 +40,7 @@
 <script>
 function update_min_assistants(element, id, num) {
 
-    if (num < element.min && num != '') {
+    if (num < element.min) {
         element.value = 0;
         // element.setCustomValidity('FY!')
     }

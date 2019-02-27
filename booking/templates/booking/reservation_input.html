@@ -1,19 +1,18 @@
 {% load helpers %}
 
 <button class="uk-button-primary uk-width-small table_button" type="button"
-        id="{{ reservation_interval.index }}
-            -{{ reservations.parent_booking_interval.nk }}
-            -{{ reservations.parent_booking_interval.get_day_display|nob_day }}
-            -{{ reservation_interval.start }}
-            -{{ reservation_interval.stop }}"
-{% if not reservations.min_available_assistants %}
+        id="{{ reservation.id }}-
+            {{ reservation.booking_interval.get_day_display|nob_day }}-
+            {{ reservation.start }}-
+            {{ reservation.end }}"
+{% if reservation.booking_interval.max_available_assistants == 0 %}
     disabled>Stengt
-{% elif reservations.free_slots > 0 %}
+{% elif reservation|available_slots != 0 %}
     uk-toggle="target: #reservation_modal" style="cursor: pointer;" onclick="fill_reservation_form(this)">
-        {{ reservations.free_slots }}/{{ reservations.num_assistants }} ledig
+        {{ reservation|available_slots }}/{{ reservation.booking_interval.assistants.count }} ledig
 {% else %}
      disabled>
-        {{ reservations.free_slots }}/{{ reservations.num_assistants }} ledig
+        0/{{ reservation.booking_interval.assistants.count }} ledig
 {% endif %}
 </button>
 
