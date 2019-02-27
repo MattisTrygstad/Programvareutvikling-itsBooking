@@ -13,7 +13,7 @@ def setup_course(course, cc):
     for bi in course.booking_intervals.all():
         r = random.randint(0, 5)
         bi.max_available_assistants = r
-        for i in range(random.randint(0, r+1)):
+        for i in range(random.randint(0, r)):
             bi.assistants.add(random.choice(assistants))
             if random.randint(0, 2) == 2:
                 break

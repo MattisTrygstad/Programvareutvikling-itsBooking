@@ -1,6 +1,6 @@
 {% load helpers %}
 
-{% for booking_interval in interval.objects %}
+{% for booking_interval in interval.booking_intervals %}
     <td>
         {% if user|in_group:"course_coordinators" %}
             {% include 'booking/table/cc_bi_input.html' %}
