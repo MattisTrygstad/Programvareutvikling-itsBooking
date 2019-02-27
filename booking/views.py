@@ -12,7 +12,7 @@ from booking.models import Course, BookingInterval, ReservationInterval, Reserva
 from itsBooking.templatetags.helpers import name
 
 
-class BookingView(DetailView):
+class CreateReservationView(DetailView):
     model = Course
     template_name = 'booking/course_detail.html'
 
@@ -59,7 +59,7 @@ class BookingView(DetailView):
                 self.object = self.get_object()
                 return self.render_to_response(context=self.get_context_data())
             else:
-                # dont use form.errors, they force hidden form fields to be shown
+                # user message.error instead of form.errors, they force hidden form fields to be shown
                 messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
                 return self.get(request, *args, **kwargs)
         else:
