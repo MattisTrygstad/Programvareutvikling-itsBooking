@@ -11,6 +11,7 @@ test:
   - python3.6 -m pip install --upgrade pip
   - python3.6 -m pip install -r requirements.txt
   - coverage run --source='.' manage.py test
+  coverage: 
   - coverage report
-  coverage: 50
+  
   
