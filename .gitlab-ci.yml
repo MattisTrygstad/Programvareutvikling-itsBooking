@@ -12,5 +12,5 @@ test:
   - python3.6 -m pip install -r requirements.txt
   - coverage run --source='.' manage.py test
   - coverage report
-  coverage: '/Code coverage: \d+\%\s+$/'
+  coverage: '/\d+\%\s+$/'
   
