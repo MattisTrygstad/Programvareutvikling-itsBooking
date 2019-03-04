@@ -12,17 +12,16 @@ class UserAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)
 
-        #
         choices = list(form.base_fields['groups'].choices)
-        usr_group = (obj.groups.first().id, str(obj.groups.first()))
-        del choices[choices.index(usr_group)]
-        choices.append(usr_group)
+        if obj is not None:
+            usr_group = (obj.groups.first().id, str(obj.groups.first()))
+            del choices[choices.index(usr_group)]
+            choices.append(usr_group)
 
         form.base_fields['groups'] = forms.ChoiceField(
             choices=reversed(choices),
             label='Gruppe',
         )
-        # form.base_fields['groups'].initial = obj.groups.first()
         return form
 
 
