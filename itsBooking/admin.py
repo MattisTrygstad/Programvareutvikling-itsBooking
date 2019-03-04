@@ -7,7 +7,7 @@ admin.site.unregister(Group)
 
 
 class UserAdmin(admin.ModelAdmin):
-    readonly_fields = ('is_staff', 'is_superuser', 'last_login', 'date_joined')
+    readonly_fields = ('last_login', 'date_joined')
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)
