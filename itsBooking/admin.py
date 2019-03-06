@@ -22,6 +22,7 @@ class UserAdmin(admin.ModelAdmin):
             choices=reversed(choices),
             label='Gruppe',
         )
+        # form.base_fields['groups'].initial = obj.groups.first()
         return form
 
 
