@@ -1,4 +1,5 @@
 {% load static %}
+{% load helpers %}
 
 <nav class="uk-navbar-container uk-margin">
     <div class="uk-container uk-container-small">
@@ -10,9 +11,11 @@
                     </a>
                 </div>
                 <ul class="uk-navbar-nav">
+                    {% if user|in_group:"students" %}
+                    <li><a href="{% url 'student_reservation_list' %}">Mine reservasjoner</a></li>
+                    {% endif %}
                     <li><a href="{% url 'populate' %}">Populate DB</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                    <li><a href=""></a></li>
+                    <li><a href="{% url 'logout' %}">Logg ut</a></li>
                 </ul>
             </div>
         </div>

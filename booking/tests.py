@@ -3,9 +3,9 @@ from django.contrib.auth.models import User, Group
 import json
 from django.db import IntegrityError
 from django.test import TestCase, Client
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
-from .models import Course, BookingInterval
+from .models import Course, BookingInterval, ReservationConnection
 
 
 class CourseViewTest(TestCase):
@@ -84,6 +84,30 @@ class ReservationTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(25, messages[0].level)  # level:25 => success
 
+
+    def test_student_reservation_list(self):
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        ReservationConnection.objects.create(
+            reservation_interval=self.reservation,
+            student=self.user,
+            assistant=assistant_user
+        )
+
+        # user is student
+        response = self.client.get(reverse_lazy('student_reservation_list'))
+        self.assertEqual(200, response.status_code)
+        self.assertQuerysetEqual(response.context['object_list'],
+                         ReservationConnection.objects.filter(student=self.user), transform=lambda x: x)
+
+        # user is no longer a student
+        self.student_group.user_set.remove(self.user)
+        response = self.client.get(reverse_lazy('student_reservation_list'))
+        self.assertEqual(403, response.status_code)
 
 class CourseModelTest(TestCase):
 
