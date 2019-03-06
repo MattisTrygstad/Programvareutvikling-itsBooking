@@ -5,7 +5,7 @@
 {% block body %}
     <div class="uk-container uk-container-medium">
         {% for day in days%}
-            <h3 class="uk-heading-bullet">{{ day }}</h3>
+            <h3 class="uk-heading-bullet">{{ day|nob_day }}</h3>
             <div class="uk-card uk-card-default uk-card-body">
                 <table class="uk-table uk-table-middle uk-table-divider">
                     <thead>
@@ -18,7 +18,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for connection in reservation_connections %}
+                    {% for connection in object_list %}
                          {% if day == connection.reservation_interval.booking_interval.get_day_display %}
                             <tr>
                                 <td>{{ connection.reservation_interval.start }} - {{ connection.reservation_interval.end }}</td>
