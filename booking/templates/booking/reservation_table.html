@@ -24,7 +24,9 @@ button.table_button {height: 30px;}
             {% for interval in intervals %}
                 <tr onclick="reveal_reservations(this.id)" id="{{ interval.start }}" class="booking_interval_row">
                     <td>{{ interval.start }} - {{ interval.stop }}</td>
-                    <td colspan="4" class="uk-text-center">VIS MER</td>
+                    <td colspan="4" class="uk-text-center">
+                         VIS MER
+                    </td>
                     <td></td>
                 </tr>
                 {% for reservation_interval in interval.reservation_intervals %}
@@ -56,21 +58,37 @@ function fill_reservation_form(element) {
 
 function reveal_reservations(id) {
 
+    // show every container row
     let all_booking_interval_rows = document.getElementsByClassName("booking_interval_row");
     for (let elt of all_booking_interval_rows) {
         elt.style.display = 'table-row';
     }
 
-    document.getElementById(id).style.display = 'none';
+    // get row that was clicked on
+    let parent_row = document.getElementById(id);
+
+    // hide every reservation row
     let all_reservation_rows = document.getElementsByClassName("reservation_row");
     for (let elt of all_reservation_rows) {
         elt.style.display = 'none';
     }
 
-    let show_reservation_rows = document.getElementsByClassName("reservation_row " + id);
-    for (let elt of show_reservation_rows) {
-        elt.style.display = 'table-row';
+    // Show child (reservation) rows of row clicked, change parent row middle td text
+    if (parent_row.innerText.includes('VIS MER')) {
+
+        parent_row.childNodes[3].innerHTML = '<span uk-icon="arrow-up"></span>' +
+            ' VIS MINDRE ' +
+            '<span uk-icon="arrow-up"></span>';
+
+        let show_reservation_rows = document.getElementsByClassName("reservation_row " + id);
+        for (let elt of show_reservation_rows) {
+            elt.style.display = 'table-row';
+        }
+    } else {
+        // change back to "Show more" text
+        parent_row.childNodes[3].innerHTML = 'VIS MER';
     }
+
 }
 
 </script>
