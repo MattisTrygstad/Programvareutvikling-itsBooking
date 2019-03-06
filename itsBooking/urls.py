@@ -11,7 +11,8 @@ urlpatterns = [
     path('', Home.as_view(), name='home'),
     path('populate/', populate_db, name='populate'),
     path('admin/', admin.site.urls),
-    path('booking/', include('booking.urls'))
+    path('booking/', include('booking.urls')),
+    path('assignments/', include('assignments.urls')),
 ]
 
 if settings.DEBUG:

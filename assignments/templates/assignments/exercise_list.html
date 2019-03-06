@@ -1,0 +1,9 @@
+{% extends 'itsBooking/base.html' %}
+
+{% block body %}
+
+    {% for exercise in exercise_list%}
+        {{ exercise }}
+    {% endfor %}
+
+{% endblock %}

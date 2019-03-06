@@ -1,0 +1,34 @@
+{% extends 'itsBooking/base.html' %}
+
+{% block body %}
+
+    <div class="uk-container uk-container-small">
+
+
+    <form method="POST" enctype="multipart/form-data" class="uk-form-stacked">
+        {% csrf_token %}
+        <div class="js-upload uk-placeholder uk-text-center">
+            <span uk-icon="icon: cloud-upload"></span>
+            <span class="uk-text-middle">Attach binaries by dropping them here or</span>
+            <div class="js-upload" uk-form-custom>
+                {{ form.file }}
+                <button class="uk-button uk-button-default" type="button" tabindex="-1">
+                    Click here</button>
+                <span id="filename"></span>
+            </div>
+        </div>
+
+        <input type="submit" value="Last opp" class="uk-button-primary uk-button-large">
+    </form>
+
+    </div>
+
+<script>
+
+function display_filename(e) {
+    document.getElementById('filename').innerText = e.files[0].name;
+}
+
+</script>
+
+{% endblock %}
