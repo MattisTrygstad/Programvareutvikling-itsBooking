@@ -31,9 +31,9 @@ class CreateReservationView(DetailView):
                 'reservation_intervals': [{
                     'start': time(hour=hour + (15 * i) // 60, minute=(15 * i) % 60),
                     'stop': time(hour=hour + (15 * (i + 1)) // 60, minute=(15 * (i + 1)) % 60),
-                    'reservations': ReservationInterval.objects.filter(
+                    'reservations': sorted(list(ReservationInterval.objects.filter(
                             Q(index=i) & Q(booking_interval__in=booking_intervals)
-                        ),
+                        )), key=lambda r: r.booking_interval.day),
                     }
                     for i in range(Course.NUM_RESERVATIONS_IN_BOOKING_INTERVAL)
                 ]
