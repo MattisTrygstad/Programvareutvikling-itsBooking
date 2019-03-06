@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import DetailView
+from django.shortcuts import render
 
 from booking.forms import ReservationForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
@@ -103,4 +104,14 @@ def bi_registration_switch(request):
     }
     return JsonResponse(data)
 
+def student_reservation_list(request):
+    courses = request.user.enrolled_courses.all()
+    reservation_connections = request.user.reservations.all()
+    days = list(calendar.day_name)[0:5]
+    context = {
+        'courses' : courses,
+        'reservation_connections':reservation_connections,
+        'days' : days,
+    }
+    return render(request,'booking/reservation_list.html',context)
 
