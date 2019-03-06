@@ -18,6 +18,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                    {% with object_list as reservation_connections %}    
                     {% for connection in object_list %}
                          {% if day == connection.reservation_interval.booking_interval.get_day_display %}
                             <tr>
