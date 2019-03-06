@@ -3,6 +3,7 @@
 
 
 {% block body %}
+    <div class="uk-container uk-container-medium">
         {% for day in days%}
             <h3 class="uk-heading-bullet">{{ day }}</h3>
             <div class="uk-card uk-card-default uk-card-body">
@@ -33,5 +34,7 @@
                 </table>
             </div>
         {% endfor %}
+    </div>
+
 
 {% endblock %}
