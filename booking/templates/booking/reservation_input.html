@@ -1,6 +1,6 @@
 {% load helpers %}
 
-<button class="uk-button-primary uk-width-small table_button" type="button"
+<button class="uk-button-primary uk-width-small table_button uk-align-center uk-margin-remove" type="button"
         id="{{ reservation.id }}-
             {{ reservation.booking_interval.get_day_display|nob_day }}-
             {{ reservation.start }}-
