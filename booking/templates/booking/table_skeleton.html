@@ -12,12 +12,16 @@
             </tr>
         </thead>
         <tbody>
-            {% for interval in intervals %}
-                <tr>
-                    <td>{{ interval.start }} - {{ interval.stop }}</td>
-                    {% include 'booking/table/booking_interval_td.html' %}
-                </tr>
-            {% endfor %}
+        {% for interval in intervals %}
+            <tr>
+            <td>{{ interval.start }} - {{ interval.stop }}</td>
+                {% for booking_interval in interval.booking_intervals %}
+                    <td>
+                        {% block table_content %}{% endblock %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
