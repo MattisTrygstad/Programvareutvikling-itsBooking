@@ -115,7 +115,7 @@ class ReservationList(UserPassesTestMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update('days': list(calendar.day_name)[0:5])
+        context.update({'days' : list(calendar.day_name)[0:5]})
         return context
 
     def test_func(self):
