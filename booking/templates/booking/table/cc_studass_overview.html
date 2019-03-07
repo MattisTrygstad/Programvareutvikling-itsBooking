@@ -11,9 +11,14 @@ type="button">
     / {{ booking_interval.max_available_assistants }} påmeldte
 </button>
 <div uk-dropdown="mode: click">
-    {% for assistant in booking_interval.assistants.all %}
-    {{ assistant.get_full_name }}
-{% endfor %}
+    {% if booking_interval.assistants.all %}
+         {% for assistant in booking_interval.assistants.all %}
+        <p>{{ assistant.get_full_name }} <p/>    
+
+    {% endfor %}
+    {% else %}
+         <p>Ingen påmeldte<p/>
+ {% endif %}
 
 </div>
 
