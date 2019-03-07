@@ -1,0 +1,30 @@
+{% extends 'booking/reservation_table.html' %}
+{% load helpers %}
+
+{% block table_content %}
+<div class="uk-inline">
+<button 
+class="uk-button uk-button-default" 
+type="button">
+<span id="{{ reservation.id }}">
+    {% if reservation.booking_interval.max_available_assistants == 0 %} Stengt
+    {% elif reservation|available_slots != 0 %}
+            {{ reservation|available_slots }}/{{ reservation.booking_interval.assistants.count }} ledig
+    {% else %}
+            0/{{ reservation.booking_interval.assistants.count }} ledig
+    {% endif %}
+</button>
+<div uk-dropdown="mode: click">
+    {% if booking_interval.assistants.all %}
+         {% for assistant in booking_interval.assistants.all %}
+        <p>{{ assistant.get_full_name }} <p/>    
+
+    {% endfor %}
+    {% else %}
+         <p>Ingen påmeldte<p/>
+ {% endif %}
+
+</div>
+
+
+{% endblock %}

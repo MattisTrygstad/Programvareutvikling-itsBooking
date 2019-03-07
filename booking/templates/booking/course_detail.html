@@ -24,7 +24,7 @@
             <li>Oversikt placeholder</li>
             <li>{% include 'booking/table/set_studentassistants.html' %}</li>
             <li>{% include 'booking/table/cc_studass_overview.html' %}</li>
-            <li>Oppmeldte studenter placeholder</li>
+            <li>{% include 'booking/table/cc_student_overview.html' %}</li>
         </ul>
     {% elif request.user|in_group:'assistants' %}
         {% include 'booking/table/assistant.html' %}
