@@ -1,3 +1,8 @@
+{% extends 'booking/table_skeleton.html' %}
+{% load helpers %}
+
+{% block table_content %}
+
 <div class="uk-text-center">
     <span id="{{ booking_interval.nk }}_available_assistants">
         {{ booking_interval.assistants.all.count }}
@@ -18,5 +23,6 @@
     {% else %}
         value="Meld av"
         class="uk-button uk-button-danger uk-button-small uk-width-1-1 uk-width-expand"
-    {% endif %}
->
+    {% endif %}>
+
+{% endblock %}

@@ -2,10 +2,12 @@ import calendar
 from datetime import time
 
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
-from django.views.generic import DetailView
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.views.generic import DetailView, ListView
+from django.shortcuts import render
 
 from booking.forms import ReservationForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
@@ -104,3 +106,17 @@ def bi_registration_switch(request):
     return JsonResponse(data)
 
 
+
+class ReservationList(UserPassesTestMixin, ListView):
+    template_name = 'booking/reservation_list.html'
+
+    def get_queryset(self):
+        return ReservationConnection.objects.filter(student=self.request.user)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'days' : list(calendar.day_name)[0:5]})
+        return context
+
+    def test_func(self):
+        return self.request.user.groups.filter(name="students").exists()

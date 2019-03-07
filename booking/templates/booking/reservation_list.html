@@ -1,0 +1,42 @@
+{% extends 'itsBooking/base.html' %}
+{% load helpers %}
+
+
+{% block body %}
+    <div class="uk-container uk-container-medium">
+        {% for day in days%}
+            <h3 class="uk-heading-bullet">{{ day|nob_day }}</h3>
+            <div class="uk-card uk-card-default uk-card-body">
+                <table class="uk-table uk-table-middle uk-table-divider">
+                    <thead>
+                        <tr>
+                            <th class="uk-width-small">Tid</th>
+                            <th class="uk-width-small">Emnekode</th>
+                            <th class="uk-width-medium">Emne</th>
+                            <th class="uk-width-medium">Studentassistent</th>
+                            <th class="uk-width-small">Avmelding</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% with object_list as reservation_connections %}    
+                    {% for connection in object_list %}
+                         {% if day == connection.reservation_interval.booking_interval.get_day_display %}
+                            <tr>
+                                <td>{{ connection.reservation_interval.start }} - {{ connection.reservation_interval.end }}</td>
+                                <td>{{ connection.reservation_interval.booking_interval.course.course_code }}</td>
+                                <td>{{ connection.reservation_interval.booking_interval.course }}</td>
+                                <td>{{ connection.assistant.get_full_name }}</td>
+                                <td><button class="uk-button uk-button-danger" type="button">Meld av</button></td>
+
+                            </tr>
+                         {% endif %}
+                    {% endfor %}
+                    {% endwith %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}
