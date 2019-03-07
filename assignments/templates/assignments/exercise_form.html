@@ -4,6 +4,7 @@
 
     <div class="uk-container uk-container-small">
 
+    {% include 'generic/display_form_errors.html' %}
 
     <form method="POST" enctype="multipart/form-data" class="uk-form-stacked">
         {% csrf_token %}
@@ -12,10 +13,11 @@
             <span class="uk-text-middle">Attach binaries by dropping them here or</span>
             <div class="js-upload" uk-form-custom>
                 {{ form.file }}
-                <button class="uk-button uk-button-default" type="button" tabindex="-1">
-                    Click here</button>
-                <span id="filename"></span>
+                <button class="uk-button uk-button-default uk-button-small" type="button" tabindex="-1">
+                    Click here</button> to open your filebrowser.
             </div>
+            <br>
+            <span id="filename" class="uk-link"></span>
         </div>
 
         <input type="submit" value="Last opp" class="uk-button-primary uk-button-large">
