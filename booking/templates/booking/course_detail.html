@@ -11,7 +11,7 @@
     {% include 'generic/display_form_errors.html' %}
 
     {% if request.user|in_group:'students' %}
-        {% include 'booking/reservation_table.html' %}
+        {% include 'booking/table/student_reservation_input.html' %}
     {% elif request.user|in_group:'course_coordinators' %}
         <ul class="uk-subnav uk-subnav-pill" uk-switcher>
             <li><a href="#">Oversikt</a></li>

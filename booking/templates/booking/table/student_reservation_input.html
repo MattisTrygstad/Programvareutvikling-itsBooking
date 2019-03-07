@@ -1,5 +1,7 @@
+{% extends 'booking/reservation_table.html' %}
 {% load helpers %}
 
+{% block table_content %}
 <button class="uk-button-primary uk-width-small table_button" type="button"
         id="{{ reservation.id }}-
             {{ reservation.booking_interval.get_day_display|nob_day }}-
@@ -37,3 +39,5 @@
         </form>
     </div>
 </div>
+
+{% endblock %}
