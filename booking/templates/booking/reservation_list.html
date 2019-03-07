@@ -4,6 +4,7 @@
 
 {% block body %}
     <div class="uk-container uk-container-medium">
+        {% include 'generic/display_messages.html'%}
         {% for day in days%}
             <h3 class="uk-heading-bullet">{{ day|nob_day }}</h3>
             <div class="uk-card uk-card-default uk-card-body">
@@ -26,7 +27,13 @@
                                 <td>{{ connection.reservation_interval.booking_interval.course.course_code }}</td>
                                 <td>{{ connection.reservation_interval.booking_interval.course }}</td>
                                 <td>{{ connection.assistant.get_full_name }}</td>
-                                <td><button class="uk-button uk-button-danger" type="button">Meld av</button></td>
+                                <td>
+                                    <form method="POST">
+                                         {% csrf_token %}
+                                        <input type="number" hidden value="{{ connection.pk }}" id="id_rc_pk" name="id_rc_pk">
+                                        <input type="submit" value="Meld Av" class="uk-button uk-button-danger">
+                                    </form>
+                                </td>
 
                             </tr>
                          {% endif %}
