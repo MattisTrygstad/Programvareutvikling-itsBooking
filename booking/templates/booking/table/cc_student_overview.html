@@ -15,7 +15,7 @@ type="button">
 <div uk-dropdown="mode: click">
     {% if reservation.connections.all %}
          {% for reservation_connection in reservation.connections.all %}
-        <p>{{ reservation_connection.student.get_full_name }} <p/>    
+        <p>{{ reservation_connection.student|name }} <p/>
         {% endfor %}
     {% else %}
          <p>Ingen påmeldte<p/>
