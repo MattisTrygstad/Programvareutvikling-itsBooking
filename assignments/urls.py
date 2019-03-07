@@ -2,9 +2,9 @@ from django.urls import path
 from django.views.generic import ListView
 
 from assignments.models import Exercise
-from assignments.views import UploadExercise
+from assignments.views import UploadExercise, ExerciseList
 
 urlpatterns = [
     path('<str:slug>/upload/', UploadExercise.as_view(), name='upload_exercise'),
-    path('uploads/', ListView.as_view(model=Exercise), name='exercise_uploads_list'),
+    path('<str:slug>/uploads/', ExerciseList.as_view(), name='exercise_uploads_list'),
 ]

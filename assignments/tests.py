@@ -1,6 +1,6 @@
 import tempfile
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.test import TestCase
 from django.urls import reverse, reverse_lazy
 
@@ -8,7 +8,7 @@ from assignments.models import Exercise
 from booking.models import Course
 
 
-class ReservationTest(TestCase):
+class ExerciseTest(TestCase):
 
     def setUp(self):
         self.course = Course.objects.create(title='algdat', course_code='tdt4125')
@@ -38,6 +38,28 @@ class ReservationTest(TestCase):
         response = self.client.get(reverse('upload_exercise', kwargs={'slug': self.course.slug}))
         self.assertEqual(200, response.status_code)
 
-    def test_get_uploads_list(self):
-        response = self.client.get(reverse_lazy('exercise_uploads_list'))
+    def test_get_uploads_list_test_func(self):
+        """
+        asssistants and ccs should be able to access the page, no one else
+        """
+
+        self.user.groups.add(Group.objects.create(name='assistants'))
+        self.user.groups.add(Group.objects.create(name='students'))
+        self.user.groups.add(Group.objects.create(name='course_coordinators'))
+
+        response = self.client.get(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}))
         self.assertEqual(200, response.status_code)
+
+        self.user.groups.remove(Group.objects.get(name='assistants'))
+        response = self.client.get(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        self.assertEqual(200, response.status_code)
+
+        self.user.groups.remove(Group.objects.get(name='course_coordinators'))
+        response = self.client.get(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        self.assertEqual(403, response.status_code)
+
+        self.user.groups.remove(Group.objects.get(name='students'))
+        response = self.client.get(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        self.assertEqual(403, response.status_code)
+
+
