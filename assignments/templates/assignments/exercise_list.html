@@ -1,0 +1,16 @@
+{% extends 'itsBooking/base.html' %}
+
+{% block body %}
+
+    <div class="uk-container uk-container-small">
+
+    {% for exercise in exercise_list%}
+        <div class="uk-card uk-card-hover uk-card-body uk-card-small">
+            <h3 class="uk-card-title">
+                <a href="{{ exercise.file.url }}">{{ exercise }}</a>
+            </h3>
+        </div>
+    {% endfor %}
+
+    </div>
+{% endblock %}
