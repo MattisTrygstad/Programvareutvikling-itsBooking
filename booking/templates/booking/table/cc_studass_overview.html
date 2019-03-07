@@ -10,6 +10,11 @@ type="button">
 </span>
     / {{ booking_interval.max_available_assistants }} påmeldte
 </button>
-<div uk-dropdown="mode: click">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</div>
+<div uk-dropdown="mode: click">
+    {% for assistant in booking_interval.assistants.all %}
+    {{ assistant.get_full_name }}
+{% endfor %}
+
+</div>
 
 {% endblock %}
