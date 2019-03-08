@@ -2,18 +2,20 @@
 
 {% block body %}
 
-    <div class="uk-container uk-container-small">
-    <h2>{{ course }} - Opplastinger</h2>
+<div class="uk-container uk-container-small">
 
-    {% for exercise in exercise_list%}
-        <div class="uk-card uk-card-hover uk-card-body uk-card-small">
-            <h3 class="uk-card-title">
-                <a href="{{ exercise.file.url }}">{{ exercise }}</a>
-            </h3>
-        </div>
-    {% empty %}
-        <h4>Det har ikke blitt lastet opp noen øvinger ennå</h4>
-    {% endfor %}
+    <h2>Opplastinger - {{ course }}</h2>
 
+    <div class="uk-child-width-1-1@l" uk-grid="masonry: true">
+        {% for exercise in exercise_list %}
+            <div>
+                {% include 'assignments/exercise_card.html' %}
+            </div>
+        {% empty %}
+            <h4>Det har ikke blitt lastet opp noen øvinger ennå</h4>
+        {% endfor %}
     </div>
+    <br>
+</div>
+
 {% endblock %}

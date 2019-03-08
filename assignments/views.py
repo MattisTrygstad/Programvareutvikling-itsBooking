@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, ListView
 
+from assignments.forms import ExerciseReviewForm
 from assignments.models import Exercise
 from booking.models import Course
 
@@ -18,7 +19,7 @@ class ExerciseList(UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         course = get_object_or_404(Course, slug=self.kwargs['slug'])
-        context.update({'course': course})
+        context.update({'course': course, 'form': ExerciseReviewForm()})
         return context
 
     def test_func(self):

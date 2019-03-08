@@ -1,0 +1,53 @@
+{% load helpers %}
+
+<style>
+    /* vertically align button with status badge */
+    button {
+        position: relative;
+        right: 10px;
+    }
+</style>
+
+<div class="uk-card uk-card-default uk-card-body uk-card-small">
+    {% include 'assignments/exercise_status_badge.html' %}
+    <h3 class="uk-card-title">
+        {{ exercise.student|name }}
+    </h3>
+    <p>
+        <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
+        {% if exercise.approved is None %}
+            <button class="uk-button-primary uk-button uk-float-right" onclick="show_review_form(this)"
+            >Gi tilbakemelding</button>
+        {% elif request.user|in_group:"course_coordinators" or request.user == exercise.reviewed_by %}
+            <button class="uk-button-default uk-button uk-float-right" onclick="override_review(this)"
+            >Ny vurdering</button>
+        {% endif %}
+    </p>
+    {% if exercise.review_text %}
+        <p>
+            {{ exercise.review_text }}
+            <br>
+            <i>ansvarlig: </i> {{ exercise.reviewd_by }}
+        </p>
+    {% endif %}
+    <p>
+        {{ form }}
+    </p>
+</div>
+
+
+<script>
+
+    function show_review_form(e) {
+
+    }
+
+    function override_review(e) {
+        let confirmed = confirm("Dette vil slette den foreliggende vurderingen. " +
+            "Er du sikker på at du vil fortsette?");
+        if (confirmed) {
+            show_review_form(e);
+        }
+    }
+
+</script>
