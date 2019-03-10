@@ -85,10 +85,10 @@ def update_max_num_assistants(request):
 
     raise PermissionDenied()
 
+
 def bi_registration_switch(request):
     nk = request.GET.get('nk', None)
     booking_interval = BookingInterval.objects.get(nk=nk)
-
 
     if not booking_interval.course.assistants.filter(id=request.user.id).exists():
         raise PermissionDenied()
@@ -106,7 +106,6 @@ def bi_registration_switch(request):
     return JsonResponse(data)
 
 
-
 class ReservationList(UserPassesTestMixin, ListView):
     template_name = 'booking/reservation_list.html'
 
@@ -120,3 +119,19 @@ class ReservationList(UserPassesTestMixin, ListView):
 
     def test_func(self):
         return self.request.user.groups.filter(name="students").exists()
+
+
+class AssistantReservationList(UserPassesTestMixin, ListView):
+    template_name = 'booking/assistant_reservation_list.html'
+
+    def get_queryset(self):
+        return BookingInterval.objects.filter(assistants=self.request.user.id)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'days' : list(calendar.day_name)[0:5]})
+        return context
+
+    def test_func(self):
+        return self.request.user.groups.filter(name="assistants").exists()
+

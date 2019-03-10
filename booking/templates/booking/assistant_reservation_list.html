@@ -1,0 +1,26 @@
+{% extends 'itsBooking/base.html' %}
+{% load helpers %}
+
+
+{% block body %}
+    <div class = "uk-container uk-container-medium">
+        {% for reservation in object_list %}
+            <table class="uk-table uk-table-middle uk-table-divider">
+            <h3 class="uk-heading-bullet">{{ reservation  }}</h3>
+                    <tr>
+                        <th class="uk-width-small">Emnekode</th>
+                        <th class="uk-width-medium">Emne</th>
+                        <th class="uk-width-medium">Dag</th>
+                        <th class="uk-width-small">Tidspunkt</th>
+                    </tr>
+                    <tr>
+                        <td> {{ reservation.course }}</td>
+                        <td> {{ reservation.course.course_code }}</td>
+                        <td> {{ reservation.get_day_display}}</td>
+                        <td> {{ reservation.start }} - {{ reservation.end }}</td>
+                    </tr>
+
+        {% endfor %}
+    </div>
+{% endblock body %}
+<h3 class="uk-heading-bullet">{{ reservation  }}</h3>
