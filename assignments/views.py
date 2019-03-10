@@ -1,9 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import Group
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.views.generic import CreateView, ListView
+from django.urls import reverse
+from django.views.generic import CreateView, ListView, UpdateView
 
 from assignments.forms import ExerciseReviewForm
 from assignments.models import Exercise
@@ -26,6 +29,38 @@ class ExerciseList(UserPassesTestMixin, ListView):
         allowed_groups = Group.objects.filter(Q(name='course_coordinators') | Q(name='assistants'))
         usr_groups = self.request.user.groups.all()
         return any(g in allowed_groups for g in usr_groups)
+
+    def post(self, request, *args, **kwargs):
+        exercise_pk = self.request.POST['exercise_pk']
+        # handle reviews through a separate view
+        return ExerciseReview.as_view()(request, *args, **kwargs, pk=exercise_pk)
+
+
+class ExerciseReview(UserPassesTestMixin, UpdateView):
+    model = Exercise
+    form_class = ExerciseReviewForm
+
+    def get_success_url(self):
+        return HttpResponseRedirect(
+            reverse('exercise_uploads_list', kwargs={'slug': self.kwargs['slug']})
+        )
+
+    def form_valid(self, form):
+        exercise = form.save(commit=False)
+        exercise.reviewed_by = self.request.user
+        exercise.save()
+        messages.success(self.request, 'Tilbakemelding vellykket!')
+        return self.get_success_url()
+
+    def test_func(self):
+        """
+        Only course coordinators and assistants can review exercise uploads
+        course coordinators can overrule previous reviews, so can the assistants who it themselves.
+        """
+        if self.get_object().reviewed_by is not None:  # there already exists a review
+            return self.get_object().reviewed_by == self.request.user or \
+                   self.request.user.groups.filter(name='course_coordinators').exists()
+        return self.request.user.groups.filter(Q(name='assistants') | Q(name='course_coordinators'))
 
 
 class UploadExercise(SuccessMessageMixin, CreateView):

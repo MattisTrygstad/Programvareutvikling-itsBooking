@@ -6,6 +6,9 @@
         position: relative;
         right: 10px;
     }
+    .radio-container {
+        margin-right: 10px;
+    }
 </style>
 
 <div class="uk-card uk-card-default uk-card-body uk-card-small">
@@ -16,37 +19,66 @@
     <p>
         <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
         {% if exercise.approved is None %}
-            <button class="uk-button-primary uk-button uk-float-right" onclick="show_review_form(this)"
-            >Gi tilbakemelding</button>
+            <button class="uk-button-primary uk-button uk-float-right" id="{{ exercise.pk }}-button"
+                    onclick="toggle_review_form(this)">
+                Gi tilbakemelding
+            </button>
         {% elif request.user|in_group:"course_coordinators" or request.user == exercise.reviewed_by %}
-            <button class="uk-button-default uk-button uk-float-right" onclick="override_review(this)"
-            >Ny vurdering</button>
+            <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
+                    onclick="override_review(this)">
+                Ny vurdering
+            </button>
         {% endif %}
     </p>
     {% if exercise.review_text %}
         <p>
             {{ exercise.review_text }}
             <br>
-            <i>ansvarlig: </i> {{ exercise.reviewd_by }}
+            <i>ansvarlig: </i> {{ exercise.reviewed_by }}
         </p>
     {% endif %}
-    <p>
-        {{ form }}
-    </p>
+    {% include 'assignments/exercise_review_form.html' %}
 </div>
-
 
 <script>
 
-    function show_review_form(e) {
+    const hide = 'Gjem skjema';
+    const show = 'Gi tilbakemelding'
+    const reassess = 'Ny vurdering';
 
+    function show_review_form(button, form) {
+        form.style.display = 'block';
+        button.innerText = hide;
     }
 
-    function override_review(e) {
-        let confirmed = confirm("Dette vil slette den foreliggende vurderingen. " +
-            "Er du sikker på at du vil fortsette?");
-        if (confirmed) {
-            show_review_form(e);
+    function hide_review_form(button, form) {
+        form.style.display = 'none';
+        if (button.className.includes('default')) {
+            button.innerText = reassess;
+        } else {
+            button.innerText = show;
+        }
+    }
+
+    function toggle_review_form(button) {
+        let id_num = button.id.split('-')[0];
+        let form = document.getElementById(id_num + '-form');
+        if (form.style.display == 'none') {
+            show_review_form(button, form);
+        } else {
+            hide_review_form(button, form);
+        }
+    }
+
+    function override_review(button) {
+        if (button.innerText != hide.toUpperCase()) {
+            let confirmed = confirm("Dette vil slette den foreliggende vurderingen. " +
+                "Er du sikker på at du vil fortsette?");
+            if (confirmed) {
+                toggle_review_form(button);
+            }
+        } else {
+            toggle_review_form(button);
         }
     }
 
