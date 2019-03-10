@@ -1,6 +1,8 @@
+import os
 import tempfile
 
 from django.contrib.auth.models import User, Group
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse, reverse_lazy
 
@@ -93,3 +95,12 @@ class ExerciseTest(TestCase):
         self.user2.groups.add(Group.objects.create(name='course_coordinators'))
         response = post()
         self.assertEqual(302, response.status_code)
+
+    def test_exercise_delete(self):
+        # make sure file associated with exercise is deleted when exercise is deleted
+        image = SimpleUploadedFile("img.png", b"file_content", content_type="image/png")
+        self.exercise = Exercise.objects.create(file=image, student=self.user, course=self.course)
+        path = self.exercise.file.path
+        self.assertTrue(os.path.isfile(path))
+        self.exercise.delete()
+        self.assertFalse(os.path.isfile(path))
