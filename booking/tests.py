@@ -62,7 +62,7 @@ class ReservationTest(TestCase):
     def test_make_reservation_deny_not_available(self):
         response = self.client.post(reverse(
             'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.course.booking_intervals.first().reservation_intervals.first().pk}
+            ), {'reservation_interval': self.course.booking_intervals.first().reservation_intervals.first().pk}
         )
         messages = list(response.context['messages'])
         self.assertEqual(40, messages[0].level)  # level:40 => error
@@ -78,12 +78,11 @@ class ReservationTest(TestCase):
 
         response = self.client.post(reverse(
             'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.reservation.pk}
+            ), {'reservation_interval': self.reservation.pk}
         )
         messages = list(response.context['messages'])
         self.assertEqual(200, response.status_code)
         self.assertEqual(25, messages[0].level)  # level:25 => success
-
 
     def test_student_reservation_list(self):
         assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
@@ -108,6 +107,7 @@ class ReservationTest(TestCase):
         self.student_group.user_set.remove(self.user)
         response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(403, response.status_code)
+
 
 class CourseModelTest(TestCase):
 
@@ -191,9 +191,9 @@ class MakeAssistantsAvailableTest(TestCase):
     def test_make_unavailable_for_interval(self):
         """
         An assistant makes himself unavailable for an interval with only one assistant
-         should result in registration_available=True and available_assistants_count=0
-         """
-        #Registering the assistant for the interval
+        should result in registration_available=True and available_assistants_count=0
+        """
+        # Registering the assistant for the interval
         self.booking_interval.assistants.add(self.user)
 
         response = self.client.get(reverse('bi_registration_switch'),
