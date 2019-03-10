@@ -41,6 +41,16 @@ class CreateReservationView(DetailView):
             intervals.append(interval)
         context['intervals'] = intervals
         context['form'] = ReservationForm()
+        print(self.object)
+        # Assistants registered for a booking interval
+        registered_assistants = []
+        for booking_interval in BookingInterval.objects.filter(course = self.object):
+            for assistant in booking_interval.assistants.all():
+                registered_assistants.append(assistant)
+        context['registered_assistants'] = list(set(registered_assistants))
+        #DETTE BØR VÆRE UNØDVENDIG, FINN BEDRE LØSNING
+        context['registered_assistants_count'] = len(list(set(registered_assistants)))
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -69,6 +79,15 @@ class CreateReservationView(DetailView):
 
     def get_success_message(self, reservation_connection):
         return f'Reservasjon opprettet! Din stud. ass. er {name(reservation_connection.assistant)}'
+
+class CcOverviewView(DetailView):
+    template_name = 'cc_overview.html'
+    context_object_name = 'registered_assistants'
+
+
+
+
+
 
 
 def update_max_num_assistants(request):
