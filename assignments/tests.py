@@ -62,4 +62,34 @@ class ExerciseTest(TestCase):
         response = self.client.get(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}))
         self.assertEqual(403, response.status_code)
 
+    def test_post_review(self):
+        self.user.groups.add(Group.objects.create(name='students'))
+        self.test_file_upload()
+        self.exercise = Exercise.objects.first()
+        post = lambda: self.client.post(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}),
+                                       {'approved': True, 'exercise_pk': self.exercise.pk, 'review_text': 'abc'})
+        response = post()
+        self.assertEqual(403, response.status_code, msg="unauthorized users should be denied review access")
 
+        # assistants should be allowed to post reviews
+        self.user.groups.add(Group.objects.create(name='assistants'))
+        response = post()
+        self.exercise.refresh_from_db()
+        self.assertEqual(self.exercise.reviewed_by, self.user)  # user should get registered as reviewer
+        self.assertEqual(302, response.status_code)
+
+        # assistants should be allowed to edit their own reviews
+        response = post()
+        self.assertEqual(302, response.status_code)
+
+        self.user2 = User.objects.create_user(username='USER2', password=123)
+        self.client.logout()
+        self.client.login(username="USER2", password=123)
+        self.user2.groups.add(Group.objects.get(name='assistants'))
+        response = post()
+        self.assertEqual(403, response.status_code, msg="assistants should not be able to override each other's reviews")
+
+        # course coordinators should be able to overrule all reviews
+        self.user2.groups.add(Group.objects.create(name='course_coordinators'))
+        response = post()
+        self.assertEqual(302, response.status_code)

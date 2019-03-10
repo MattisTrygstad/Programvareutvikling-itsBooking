@@ -52,6 +52,9 @@ class ExerciseReview(UserPassesTestMixin, UpdateView):
         messages.success(self.request, 'Tilbakemelding vellykket!')
         return self.get_success_url()
 
+    def form_invalid(self, form):
+        return super().form_invalid()
+
     def test_func(self):
         """
         Only course coordinators and assistants can review exercise uploads

@@ -140,3 +140,8 @@ LOGOUT_REDIRECT_URL = '/'
 LOGOUT_URL = '/'
 
 
+# enable stdout (print) during testing
+NOSE_ARGS = [
+    '--nocapture',
+    '--nologcapture',
+    ]
