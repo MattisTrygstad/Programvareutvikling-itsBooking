@@ -51,6 +51,25 @@ class CreateReservationView(DetailView):
         #DETTE BØR VÆRE UNØDVENDIG, FINN BEDRE LØSNING
         context['registered_assistants_count'] = len(list(set(registered_assistants)))
 
+        #Share of reservation_intervals booked by students
+        booked_counter = 0
+        available_intervals = 0
+        for booking_interval in BookingInterval.objects.filter(course=self.object):
+            for reservation_interval in booking_interval.reservation_intervals.all():
+                available_intervals += booking_interval.assistants.count()
+                booked_counter += reservation_interval.connections.count()
+        context['booked_ri_count'] = booked_counter
+        context['available_rintervals_count'] = available_intervals
+
+        #Share of full booking intervals
+        full_booking_intervals = 0
+        for booking_interval in BookingInterval.objects.filter(course=self.object):
+            if booking_interval.max_available_assistants == booking_interval.assistants.count():
+                full_booking_intervals += 1
+        context['full_bi_count'] = full_booking_intervals
+        context['available_bintervals_count'] = BookingInterval.objects.filter(course=self.object).all().count()
+
+        context['total_opening_time'] = booking_intervals.count()*2
         return context
 
     def post(self, request, *args, **kwargs):
