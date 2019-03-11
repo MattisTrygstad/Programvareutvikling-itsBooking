@@ -61,6 +61,7 @@ class CreateReservationView(DetailView):
         context['booked_ri_count'] = booked_counter
         context['available_rintervals_count'] = available_intervals
 
+
         #Share of full booking intervals
         full_booking_intervals = 0
         for booking_interval in BookingInterval.objects.filter(course=self.object):
@@ -68,8 +69,14 @@ class CreateReservationView(DetailView):
                 full_booking_intervals += 1
         context['full_bi_count'] = full_booking_intervals
         context['available_bintervals_count'] = BookingInterval.objects.filter(course=self.object).all().count()
-
+        context['available_assistants'] = Course.objects.get(pk=self.object.pk).assistants.all().count()
         context['total_opening_time'] = booking_intervals.count()*2
+
+        #Percentages for progress bar at cc_overview
+        context['studass_percent'] = round(context['registered_assistants_count'] / context['available_assistants'] * 100)
+        context['student_percent'] = round(context['booked_ri_count'] / context['available_rintervals_count'] * 100)
+        context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100)
+
         return context
 
     def post(self, request, *args, **kwargs):
