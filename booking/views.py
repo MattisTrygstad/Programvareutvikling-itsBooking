@@ -7,21 +7,24 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
-from django.views.generic import DetailView, ListView, CreateView, FormView
+from django.views.generic import ListView, FormView, DetailView
+from django.views.generic.base import View
 
 from booking.forms import ReservationConnectionForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
 from itsBooking.templatetags.helpers import name
 
 
-class CreateReservationView(DetailView):
+WEEKDAYS = list(calendar.day_name)[0:5]
+
+
+class StudentTableView(DetailView):
     model = Course
     template_name = 'booking/course_detail.html'
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
-        context['weekdays'] = list(calendar.day_name)[0:5]
+        context['weekdays'] = WEEKDAYS
         intervals = []
         for hour in range(Course.OPEN_BOOKING_TIME, Course.CLOSE_BOOKING_TIME, Course.BOOKING_INTERVAL_LENGTH):
             booking_intervals = BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))
@@ -29,14 +32,12 @@ class CreateReservationView(DetailView):
                 'start': time(hour),
                 'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
                 'booking_intervals': booking_intervals,
-                'assistants': booking_intervals.first().assistants.values_list('id'),
                 'reservation_intervals': [{
                     'start': time(hour=hour + (15 * i) // 60, minute=(15 * i) % 60),
                     'stop': time(hour=hour + (15 * (i + 1)) // 60, minute=(15 * (i + 1)) % 60),
-                    'reservations': sorted(list(ReservationInterval.objects.filter(
-                        Q(index=i) & Q(booking_interval__in=booking_intervals)
-                    )), key=lambda r: r.booking_interval.day),
-                }
+                    'reservations': [r.reservation_intervals.filter(index=i).first() for r in
+                                     booking_intervals.prefetch_related('reservation_intervals')],
+                    }
                     for i in range(Course.NUM_RESERVATIONS_IN_BOOKING_INTERVAL)
                 ]
             }
@@ -71,6 +72,18 @@ class CreateReservationConnect(UserPassesTestMixin, FormView):
         error_message = 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.'
         messages.error(self.request, error_message)
         return super().form_invalid()
+
+
+class CourseDetailDelegator(View):
+    delegator = {
+        'students': StudentTableView.as_view(),
+#        'assistants': AssistantTableView.as_view(),
+#        'course_coordinators': CourseCoordinatorTableView.as_view(),
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        request_user_group = self.request.user.groups.first().name
+        return self.delegator[request_user_group](request, *args, **kwargs)
 
 
 def update_max_num_assistants(request):
@@ -114,7 +127,7 @@ class ReservationList(UserPassesTestMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update({'days': list(calendar.day_name)[0:5]})
+        context.update({'days': WEEKDAYS})
         return context
 
     def test_func(self):
