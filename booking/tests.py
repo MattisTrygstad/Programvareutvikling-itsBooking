@@ -76,9 +76,7 @@ class ReservationTest(TestCase):
         self.course.booking_intervals.first().assistants.add(assistant_user)
         self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
 
-        response = self.client.post(reverse(
-            'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.reservation.pk}
+        response = self.client.post(reverse('course_detail', kwargs={'slug': self.course.slug}), {'reservation_pk': self.reservation.pk}
         )
         messages = list(response.context['messages'])
         self.assertEqual(200, response.status_code)
@@ -109,7 +107,25 @@ class ReservationTest(TestCase):
         response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(403, response.status_code)
 
+    def test_unassigned_for_reservation_interval(self):
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
 
+        self.connection = ReservationConnection.objects.create(
+            reservation_interval=self.reservation,
+            student=self.user,
+            assistant=assistant_user
+        )
+        response = self.client.post(reverse_lazy(
+            'student_reservation_list'
+        ), {'id_rc_pk': self.connection.pk}
+        )
+        self.assertEqual(302, response.status_code)
+        self.assertIs(False, ReservationConnection.objects.filter(pk=self.connection.pk).exists())
 
 class CourseModelTest(TestCase):
 
