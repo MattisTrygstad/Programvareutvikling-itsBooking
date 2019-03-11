@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <p>Sal er åpen {{ total_opening_time }} timer i uken</p>
-    <p>{{ registered_assistants_count }} / {{ course.assistants.all.count }} studentassistenter har meldt seg opp</p>
+    <p>{{ assistants_registered_for_bi|length }} / {{ course.assistants.all.count }} studentassistenter har meldt seg opp</p>
     <div uk-grid>
-    <div class="uk-width-1-3@m"><progress id="js-progressbar" class="uk-progress" value="{{ studass_percent }}" max="100"></progress></div><br>
+    <div class="uk-width-1-3@m"><progress id="js-progressbar" class="uk-progress" value="{{ assistant_percent }}" max="100"></progress></div><br>
     </div>
     <p>{{ booked_ri_count}} / {{ available_rintervals_count }} av reservasjonsintervallene er reservert av studenter </p>
     <div uk-grid>

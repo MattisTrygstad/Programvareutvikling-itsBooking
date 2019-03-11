@@ -41,39 +41,33 @@ class CreateReservationView(DetailView):
             intervals.append(interval)
         context['intervals'] = intervals
         context['form'] = ReservationForm()
-        print(self.object)
-        # Assistants registered for a booking interval
-        registered_assistants = []
-        for booking_interval in BookingInterval.objects.filter(course = self.object):
-            for assistant in booking_interval.assistants.all():
-                registered_assistants.append(assistant)
-        context['registered_assistants'] = list(set(registered_assistants))
-        #DETTE BØR VÆRE UNØDVENDIG, FINN BEDRE LØSNING
-        context['registered_assistants_count'] = len(list(set(registered_assistants)))
 
-        #Share of reservation_intervals booked by students
+        booking_intervals = BookingInterval.objects.filter(course = self.object)
+        assistants_registered_for_bi = []
         booked_counter = 0
         available_intervals = 0
-        for booking_interval in BookingInterval.objects.filter(course=self.object):
+        full_booking_intervals = 0
+        for booking_interval in booking_intervals:
+            # Assistants registered for a booking interval
+            for assistant in booking_interval.assistants.all():
+                assistants_registered_for_bi.append(assistant)
+            # Share of reservation_intervals booked by students
             for reservation_interval in booking_interval.reservation_intervals.all():
                 available_intervals += booking_interval.assistants.count()
                 booked_counter += reservation_interval.connections.count()
-        context['booked_ri_count'] = booked_counter
-        context['available_rintervals_count'] = available_intervals
-
-
-        #Share of full booking intervals
-        full_booking_intervals = 0
-        for booking_interval in BookingInterval.objects.filter(course=self.object):
+            # Number of full booking intervals
             if booking_interval.max_available_assistants == booking_interval.assistants.count():
                 full_booking_intervals += 1
+        context['assistants_registered_for_bi'] = list(set(assistants_registered_for_bi))
+        context['booked_ri_count'] = booked_counter
+        context['available_rintervals_count'] = available_intervals  # Reservation intervals available for students
         context['full_bi_count'] = full_booking_intervals
-        context['available_bintervals_count'] = BookingInterval.objects.filter(course=self.object).all().count()
+        context['available_bintervals_count'] = booking_intervals.all().count() # Number of available booking intervals
         context['available_assistants'] = Course.objects.get(pk=self.object.pk).assistants.all().count()
-        context['total_opening_time'] = BookingInterval.objects.filter(Q(max_available_assistants__gt=0) & Q(course=self.object)).all().count()*2
+        context['total_opening_time'] = booking_intervals.filter(max_available_assistants__gt=0).all().count() * 2
 
         #Percentages for progress bar at cc_overview
-        context['studass_percent'] = round(context['registered_assistants_count'] / context['available_assistants'] * 100)
+        context['assistant_percent'] = round(len(context['assistants_registered_for_bi']) / context['available_assistants'] * 100)
         context['student_percent'] = round(context['booked_ri_count'] / context['available_rintervals_count'] * 100)
         context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100)
 
@@ -106,9 +100,6 @@ class CreateReservationView(DetailView):
     def get_success_message(self, reservation_connection):
         return f'Reservasjon opprettet! Din stud. ass. er {name(reservation_connection.assistant)}'
 
-class CcOverviewView(DetailView):
-    template_name = 'cc_overview.html'
-    context_object_name = 'registered_assistants'
 
 
 
