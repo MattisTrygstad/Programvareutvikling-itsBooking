@@ -1,25 +1,56 @@
 {% extends 'itsBooking/base.html' %}
 {% load helpers %}
-
-
 {% block body %}
-    <div class = "uk-container uk-container-medium">
-        {% for reservation in object_list %}
-            <table class="uk-table uk-table-middle uk-table-divider">
-            <h3 class="uk-heading-bullet">{{ reservation  }}</h3>
-                    <tr>
-                        <th class="uk-width-small">Emnekode</th>
-                        <th class="uk-width-medium">Emne</th>
-                        <th class="uk-width-medium">Dag</th>
-                        <th class="uk-width-small">Tidspunkt</th>
-                    </tr>
-                    <tr>
-                        <td> {{ reservation.course }}</td>
-                        <td> {{ reservation.course.course_code }}</td>
-                        <td> {{ reservation.get_day_display}}</td>
-                        <td> {{ reservation.start }} - {{ reservation.end }}</td>
-                    </tr>
+<style>
+td {font-size: 16px;}
+#hei {color:red;}
+</style>
 
+    <div class = "uk-container uk-container-medium">
+        <table class="uk-table uk-table-middle ">
+                        <thead>
+                            <tr>
+                                <th class="uk-width-small">Emnekode</th>
+                                <th class="uk-width-medium">Emne</th>
+                                <th class="uk-width-small">Dag</th>
+                                <th class="uk-width-small">Tid</th>
+                            </tr>
+                        </thead>
+        </table>
+        {% for bookinginterval in object_list %}
+                <ul uk-accordion>
+                    <li>
+                        <a class="uk-accordion-title uk-card uk-card-default uk-card-body">
+                            <table class="uk-table uk-table-middle">
+                                <tr>
+                                    <td class="uk-width-small">{{ bookinginterval.course.course_code }}</td>
+                                    <td class="uk-width-medium">{{ bookinginterval.course }}</td>
+                                    <td class="uk-width-small">{{ bookinginterval.get_day_display|nob_day}}</td>
+                                    <td class="uk-width-small">{{ bookinginterval.start }} - {{ bookinginterval.end }}</td>
+                                </tr>
+                            </table>
+                        </a>
+                        <div class="uk-accordion-content uk-background-muted">
+                            <table class="uk-table uk-table-small uk-table-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="uk-width-small uk-text-right">Kvartersintervall</th>
+                                        <th class="uk-width-small">Student</th>
+                                    </tr>
+                                </thead>
+                                {% for reservation in bookinginterval.reservation_intervals.all %}
+                                    <tr>
+                                        <td class="uk-width-small uk-text-right" id="hei">{{ reservation.start }} - {{ reservation.end }}</td>
+                                        <td class="uk-width-small">{{ reservation.connections.first.student.get_full_name}}
+                                        {% if reservation.connections.first == none %}
+                                            Ingen
+                                        {% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </li>
+                </ul>
         {% endfor %}
     </div>
 {% endblock body %}
