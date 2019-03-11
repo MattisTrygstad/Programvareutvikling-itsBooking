@@ -18,16 +18,19 @@
     </h3>
     <p>
         <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
-        {% if exercise.approved is None %}
-            <button class="uk-button-primary uk-button uk-float-right" id="{{ exercise.pk }}-button"
-                    onclick="toggle_review_form(this)">
-                Gi tilbakemelding
-            </button>
+        {% if request.user|in_group:"students" %}
+            <p>test</p>
         {% elif request.user|in_group:"course_coordinators" or request.user == exercise.reviewed_by %}
             <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
                     onclick="override_review(this)">
                 Ny vurdering
             </button>
+        {% elif exercise.approved is None %}
+            <button class="uk-button-primary uk-button uk-float-right" id="{{ exercise.pk }}-button"
+                    onclick="toggle_review_form(this)">
+                Gi tilbakemelding
+            </button>
+        
         {% endif %}
     </p>
     {% if exercise.review_text %}
