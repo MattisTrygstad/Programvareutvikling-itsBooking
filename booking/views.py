@@ -63,7 +63,6 @@ class CreateReservationView(DetailView):
                 self.object = self.get_object()
                 return self.render_to_response(context=self.get_context_data())
             else:
-                # use message.error instead of form.errors, they force hidden form fields to be shown
                 messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
                 return self.get(request, *args, **kwargs)
         else:
@@ -133,7 +132,6 @@ class ReservationList(UserPassesTestMixin, ListView):
             else:
                 return PermissionDenied("Fy!")
         except ReservationConnection.DoesNotExist:
-            # use message.error instead of form.errors, they force hidden form fields to be shown
             messages.error(request, 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.')
             return self.get(request)
 
