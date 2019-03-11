@@ -1,7 +1,8 @@
 {% load helpers %}
 
 {% if user|already_made_reservation:reservation %}
-    <button type="button" class="uk-button-danger uk-width-small table_button uk-align-center uk-margin-remove">
+    <button type="button" class="uk-button-danger uk-width-small table_button uk-align-center uk-margin-remove"
+            uk-tooltip="{{ reservation|available_slots }}/{{ reservation.booking_interval.assistants.count }} ledige">
         PÅMELDT
     </button>
 {% else %}
