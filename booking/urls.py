@@ -1,5 +1,5 @@
 from django.urls import path
-from booking.views import update_max_num_assistants, bi_registration_switch, StudentTableView, ReservationList, \
+from booking.views import update_max_num_assistants, bi_registration_switch, ReservationList, \
     CourseDetailDelegator
 
 urlpatterns = [

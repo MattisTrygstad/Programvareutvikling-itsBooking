@@ -62,7 +62,7 @@ class ReservationTest(TestCase):
     def test_make_reservation_deny_not_available(self):
         response = self.client.post(reverse(
             'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_interval': self.course.booking_intervals.first().reservation_intervals.first().pk}
+            ), {'reservation_pk': self.course.booking_intervals.first().reservation_intervals.first().pk}
         )
         messages = list(response.context['messages'])
         self.assertEqual(40, messages[0].level)  # level:40 => error
@@ -78,7 +78,7 @@ class ReservationTest(TestCase):
 
         response = self.client.post(reverse(
             'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_interval': self.reservation.pk}
+            ), {'reservation_pk': self.reservation.pk}
         )
         messages = list(response.context['messages'])
         self.assertEqual(200, response.status_code)

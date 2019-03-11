@@ -18,7 +18,12 @@ from itsBooking.templatetags.helpers import name
 WEEKDAYS = list(calendar.day_name)[0:5]
 
 
-class StudentTableView(DetailView):
+class TableView(DetailView):
+    model = Course
+    template_name = 'booking/course_detail.html'
+
+
+class StudentTable(TableView):
     model = Course
     template_name = 'booking/course_detail.html'
 
@@ -47,10 +52,32 @@ class StudentTableView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
-        return CreateReservationConnect.as_view()(request, *args, **kwargs)
+        return CreateReservationConnection.as_view()(request, *args, **kwargs)
 
 
-class CreateReservationConnect(UserPassesTestMixin, FormView):
+class AssistantTable(TableView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['weekdays'] = WEEKDAYS
+        intervals = []
+        for hour in range(Course.OPEN_BOOKING_TIME, Course.CLOSE_BOOKING_TIME, Course.BOOKING_INTERVAL_LENGTH):
+            booking_intervals = BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))
+            interval = {
+                'start': time(hour),
+                'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
+                'booking_intervals': booking_intervals,
+            }
+            intervals.append(interval)
+        context['intervals'] = intervals
+        return context
+
+
+class CourseCoordinatorTable(StudentTable):
+    pass
+
+
+class CreateReservationConnection(UserPassesTestMixin, FormView):
     form_class = ReservationConnectionForm
 
     def get_success_url(self):
@@ -76,9 +103,9 @@ class CreateReservationConnect(UserPassesTestMixin, FormView):
 
 class CourseDetailDelegator(View):
     delegator = {
-        'students': StudentTableView.as_view(),
-#        'assistants': AssistantTableView.as_view(),
-#        'course_coordinators': CourseCoordinatorTableView.as_view(),
+        'students': StudentTable.as_view(),
+        'assistants': AssistantTable.as_view(),
+        'course_coordinators': CourseCoordinatorTable.as_view(),
     }
 
     def dispatch(self, request, *args, **kwargs):
