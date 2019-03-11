@@ -36,3 +36,11 @@ def first_name(user):
     if user.first_name:
         return user.first_name.split(" ")[0]
     return user.username
+
+
+@register.filter(name='already_made_reservation')
+def user_has_made_reservation_for_interval(user, reservation_interval):
+    for rc in reservation_interval.connections.all():
+        if user == rc.student:
+            return True
+    return False

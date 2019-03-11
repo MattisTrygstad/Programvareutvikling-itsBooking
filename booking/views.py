@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.views.generic import DetailView, ListView
 from django.shortcuts import render
 
@@ -63,7 +63,6 @@ class CreateReservationView(DetailView):
                 self.object = self.get_object()
                 return self.render_to_response(context=self.get_context_data())
             else:
-                # user message.error instead of form.errors, they force hidden form fields to be shown
                 messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
                 return self.get(request, *args, **kwargs)
         else:
@@ -114,9 +113,25 @@ class ReservationList(UserPassesTestMixin, ListView):
         return ReservationConnection.objects.filter(student=self.request.user)
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data()
+        self.object_list = self.get_queryset()
+        context = super().get_context_data(object_list=object_list, **kwargs)
         context.update({'days' : list(calendar.day_name)[0:5]})
         return context
 
     def test_func(self):
         return self.request.user.groups.filter(name="students").exists()
+
+    def post(self, request):
+        try:
+            rc = ReservationConnection.objects.get(pk=request.POST['reservation_connection_pk'])
+            if rc.student == self.request.user:
+                rc.delete()
+                messagetext = f'Du er nå meldt av reservasjonen!'
+                messages.success(request,messagetext)
+                return HttpResponseRedirect(request.path)
+            else:
+                return PermissionDenied("Fy!")
+        except ReservationConnection.DoesNotExist:
+            messages.error(request, 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.')
+            return self.get(request)
+
