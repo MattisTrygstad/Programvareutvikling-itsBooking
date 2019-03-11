@@ -67,9 +67,9 @@ class CreateReservationView(DetailView):
         context['total_opening_time'] = booking_intervals.filter(max_available_assistants__gt=0).all().count() * 2
 
         #Percentages for progress bar at cc_overview
-        context['assistant_percent'] = round(len(context['assistants_registered_for_bi']) / context['available_assistants'] * 100)
-        context['student_percent'] = round(context['booked_ri_count'] / context['available_rintervals_count'] * 100)
-        context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100)
+        context['assistant_percent'] = round(len(context['assistants_registered_for_bi']) / context['available_assistants'] * 100) if context['available_assistants'] != 0  else 0
+        context['student_percent'] = round(context['booked_ri_count'] / context['available_rintervals_count'] * 100) if context['available_rintervals_count'] != 0  else 0
+        context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100) if context['available_bintervals_count'] != 0  else 0
 
         return context
 
