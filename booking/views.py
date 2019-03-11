@@ -13,7 +13,7 @@ from django.views.generic.base import View
 from booking.forms import ReservationConnectionForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
 from itsBooking.templatetags.helpers import name
-
+from itsBooking.views import LoginView
 
 WEEKDAYS = list(calendar.day_name)[0:5]
 
@@ -79,6 +79,7 @@ class CourseCoordinatorTable(StudentTable):
 
 class CreateReservationConnection(UserPassesTestMixin, FormView):
     form_class = ReservationConnectionForm
+    template_name = 'booking/reservation_input.html'
 
     def get_success_url(self):
         return reverse('course_detail', kwargs={'slug': self.kwargs['slug']})
@@ -95,10 +96,10 @@ class CreateReservationConnection(UserPassesTestMixin, FormView):
         messages.success(self.request, success_message)
         return super().form_valid(form)
 
-    def form_invalid(self):
+    def form_invalid(self, form):
         error_message = 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.'
         messages.error(self.request, error_message)
-        return super().form_invalid()
+        return super().form_invalid(form)
 
 
 class CourseDetailDelegator(View):
@@ -109,8 +110,11 @@ class CourseDetailDelegator(View):
     }
 
     def dispatch(self, request, *args, **kwargs):
+        # if user not logged in or not in any groups -> 403, if user is missing groups -> Login page
+        if not request.user.is_authenticated or not request.user.groups.all():
+            raise PermissionDenied
         request_user_group = self.request.user.groups.first().name
-        return self.delegator[request_user_group](request, *args, **kwargs)
+        return self.delegator.get(request_user_group, LoginView.as_view())(request, *args, **kwargs)
 
 
 def update_max_num_assistants(request):

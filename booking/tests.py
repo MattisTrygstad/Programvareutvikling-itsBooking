@@ -1,8 +1,11 @@
+import django
 from django.contrib.auth.models import User, Group
 
 import json
+
 from django.db import IntegrityError
 from django.test import TestCase, Client
+from django.test.utils import setup_test_environment, teardown_test_environment
 from django.urls import reverse, reverse_lazy
 
 from .models import Course, BookingInterval, ReservationConnection
@@ -11,12 +14,15 @@ from .models import Course, BookingInterval, ReservationConnection
 class CourseViewTest(TestCase):
 
     def setUp(self):
-        self.client = Client()
         self.course = Course.objects.create(title='algdat', course_code='tdt4125')
 
     def test_get_course_detail(self):
         response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code, msg='users must be logged in to see booking tables')
+        User.objects.create_user(username='USERNAME', password='123')
+        self.client.login(username='USERNAME', password='123')
+        response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
+        self.assertEqual(403, response.status_code, 'user must belong to a group')
 
     def test_max_assistants_update(self):
         # setup variables
@@ -67,7 +73,7 @@ class ReservationTest(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(40, messages[0].level)  # level:40 => error
 
-    def test_make_reservation_deny_success(self):
+    def test_make_reservation_success(self):
         # setup assistant and booking interval
         assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
         assistant_group = Group.objects.create(name='assistants')
@@ -75,14 +81,14 @@ class ReservationTest(TestCase):
         self.course.booking_intervals.first().min_num_assistants = 1
         self.course.booking_intervals.first().assistants.add(assistant_user)
         self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        rc_count = self.reservation.connections.count()
 
-        response = self.client.post(reverse(
-            'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.reservation.pk}
+        response = self.client.post(
+            reverse('course_detail', kwargs={'slug': self.course.slug}),
+            {'reservation_pk': self.reservation.pk}
         )
-        messages = list(response.context['messages'])
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(25, messages[0].level)  # level:25 => success
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(rc_count + 1, self.reservation.connections.count())
 
     def test_student_reservation_list(self):
         assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
