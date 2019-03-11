@@ -67,7 +67,7 @@ class ReservationTest(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(40, messages[0].level)  # level:40 => error
 
-    def test_make_reservation_deny_success(self):
+    def test_make_reservation_success(self):
         # setup assistant and booking interval
         assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
         assistant_group = Group.objects.create(name='assistants')
@@ -108,6 +108,8 @@ class ReservationTest(TestCase):
         self.student_group.user_set.remove(self.user)
         response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(403, response.status_code)
+
+
 
 class CourseModelTest(TestCase):
 
