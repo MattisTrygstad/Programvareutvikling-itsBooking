@@ -14,12 +14,15 @@
 <div class="uk-card uk-card-default uk-card-body uk-card-small">
     {% include 'assignments/card/exercise_status_badge.html' %}
     <h3 class="uk-card-title">
-        {{ exercise.student|name }}
+        {% if request.user|in_group:"students" %}
+            {{ exercise.course }}
+        {% else %}
+            {{ exercise.student|name }}
+        {% endif %}
     </h3>
     <p>
         <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
         {% if request.user|in_group:"students" %}
-            <p>test</p>
         {% elif request.user|in_group:"course_coordinators" or request.user == exercise.reviewed_by %}
             <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
                     onclick="override_review(this)">
@@ -30,15 +33,18 @@
                     onclick="toggle_review_form(this)">
                 Gi tilbakemelding
             </button>
-        
         {% endif %}
     </p>
     {% if exercise.review_text %}
+        {% if request.user|in_group:"students" %}
+            <p class="uk-text-emphasis">Kommentar:</p>
+        {% endif %}
         <p>
             {{ exercise.review_text }}
         </p>
     {% endif %}
-    {% if exercise.reviewed_by %}
+    {% if request.user|in_group:"students" %}
+    {% elif exercise.reviewed_by %}
         <p>
             <i>ansvarlig: </i> {{ exercise.reviewed_by|name }}
         </p>
