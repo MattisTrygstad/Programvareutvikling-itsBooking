@@ -12,7 +12,7 @@
 </style>
 
 <div class="uk-card uk-card-default uk-card-body uk-card-small">
-    {% include 'assignments/exercise_card/exercise_status_badge.html' %}
+    {% include 'assignments/card/exercise_status_badge.html' %}
     <h3 class="uk-card-title">
         {{ exercise.student|name }}
     </h3>
@@ -37,7 +37,7 @@
             <i>ansvarlig: </i> {{ exercise.reviewed_by }}
         </p>
     {% endif %}
-    {% include 'assignments/exercise_card/exercise_review_form.html' %}
+    {% include 'assignments/card/exercise_review_form.html' %}
 </div>
 
 <script>
