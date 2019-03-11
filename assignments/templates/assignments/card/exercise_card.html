@@ -33,8 +33,11 @@
     {% if exercise.review_text %}
         <p>
             {{ exercise.review_text }}
-            <br>
-            <i>ansvarlig: </i> {{ exercise.reviewed_by }}
+        </p>
+    {% endif %}
+    {% if exercise.reviewed_by %}
+        <p>
+            <i>ansvarlig: </i> {{ exercise.reviewed_by|name }}
         </p>
     {% endif %}
     {% include 'assignments/card/exercise_review_form.html' %}

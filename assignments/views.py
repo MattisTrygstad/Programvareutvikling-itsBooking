@@ -6,23 +6,22 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView, TemplateView
 
 from assignments.forms import ExerciseReviewForm
 from assignments.models import Exercise
 from booking.models import Course
 
 
-class ExerciseList(UserPassesTestMixin, ListView):
+class ExerciseList(UserPassesTestMixin, TemplateView):
     template_name = 'assignments/exercise_list.html'
-
-    def get_queryset(self):
-        return Exercise.objects.filter(course__slug=self.kwargs['slug'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         course = get_object_or_404(Course, slug=self.kwargs['slug'])
-        context.update({'course': course, 'form': ExerciseReviewForm()})
+        context.update({'course': course,
+                        'form': ExerciseReviewForm(),
+                        'exercise_list': course.exercise_uploads.all()})
         return context
 
     def test_func(self):

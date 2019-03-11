@@ -13,12 +13,12 @@ def get_exercise_filepath(instance, filename):
 class Exercise(models.Model):
     course = models.ForeignKey(
         Course,
-        related_name='assignments',
+        related_name='exercise_uploads',
         on_delete=models.CASCADE,
     )
     student = models.ForeignKey(
         User,
-        related_name='assignments',
+        related_name='exercises',
         on_delete=models.CASCADE,
     )
     file = models.FileField(
