@@ -124,7 +124,7 @@ class ReservationList(UserPassesTestMixin, ListView):
 
     def post(self, request):
         try:
-            rc = ReservationConnection.objects.get(pk=request.POST['id_rc_pk'])
+            rc = ReservationConnection.objects.get(pk=request.POST['reservation_connection_pk'])
             if rc.student == self.request.user:
                 rc.delete()
                 messagetext = f'Du er nå meldt av reservasjonen!'

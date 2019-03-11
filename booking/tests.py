@@ -107,7 +107,7 @@ class ReservationTest(TestCase):
         response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(403, response.status_code)
 
-    def test_unassigned_for_reservation_interval(self):
+    def test_ReservationList_post(self):
         assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
         assistant_group = Group.objects.create(name='assistants')
         assistant_group.user_set.add(assistant_user)
@@ -122,7 +122,7 @@ class ReservationTest(TestCase):
         )
         response = self.client.post(reverse_lazy(
             'student_reservation_list'
-        ), {'id_rc_pk': self.connection.pk}
+        ), {'reservation_connection_pk': self.connection.pk}
         )
         self.assertEqual(302, response.status_code)
         self.assertIs(False, ReservationConnection.objects.filter(pk=self.connection.pk).exists())

@@ -30,7 +30,7 @@
                                 <td>
                                     <form method="POST">
                                          {% csrf_token %}
-                                        <input type="number" hidden value="{{ connection.pk }}" id="id_rc_pk" name="id_rc_pk">
+                                        <input type="number" hidden value="{{ connection.pk }}" id="reservation_connection_pk" name="reservation_connection_pk">
                                         <input type="submit" value="Meld Av" class="uk-button uk-button-danger">
                                     </form>
                                 </td>
