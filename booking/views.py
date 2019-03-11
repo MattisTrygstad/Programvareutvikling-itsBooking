@@ -70,7 +70,7 @@ class CreateReservationView(DetailView):
         context['full_bi_count'] = full_booking_intervals
         context['available_bintervals_count'] = BookingInterval.objects.filter(course=self.object).all().count()
         context['available_assistants'] = Course.objects.get(pk=self.object.pk).assistants.all().count()
-        context['total_opening_time'] = booking_intervals.count()*2
+        context['total_opening_time'] = BookingInterval.objects.filter(Q(max_available_assistants__gt=0) & Q(course=self.object)).all().count()*2
 
         #Percentages for progress bar at cc_overview
         context['studass_percent'] = round(context['registered_assistants_count'] / context['available_assistants'] * 100)
