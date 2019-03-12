@@ -1,12 +1,12 @@
 [run]
-# omit generated files, test files themselves
 omit =
+    # omit generated files, test files themselves
     /venv/*
     */migrations/*
     */tests.py
     */apps.py
     */__init__.py
-    manage.py
+    */manage.py
 
 [report]
 # Regexes for lines to exclude from consideration
