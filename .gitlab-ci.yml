@@ -10,13 +10,3 @@ test:
   artifacts:
     paths:
       - coverage_html_report
-
-pages:
-  stage: test
-  dependencies:
-    - test
-  script:
-    - mv coverage_html_report/ public/
-  artifacts:
-    paths:
-      - public
