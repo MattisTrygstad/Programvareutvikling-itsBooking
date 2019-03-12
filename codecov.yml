@@ -1,0 +1,20 @@
+coverage:
+  status:
+    project:
+      default:
+        threshold: 80%
+    patch:
+      default:
+        threshold: 80%
+  ignore:
+    - manage.py
+    - web/settings.py
+    - venv/
+    - htmlcov
+    - **/apps.py
+    - **/tests.py
+    - **/wsgi.py
+    - **/asgi.py
+    - **/test**.py
+    - **/migrations
+    - **/__init__.py
