@@ -23,21 +23,21 @@
                     onclick="toggle_review_form(this)">
                 Gi tilbakemelding
             </button>
-        {% elif request.user|in_group:"course_coordinators" or request.user == exercise.reviewed_by %}
+        {% elif request.user|in_group:"course_coordinators" or request.user == exercise.feedback_by %}
             <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
                     onclick="override_review(this)">
                 Ny vurdering
             </button>
         {% endif %}
     </p>
-    {% if exercise.review_text %}
+    {% if exercise.feedback_text %}
         <p>
-            {{ exercise.review_text }}
+            {{ exercise.feedback_text }}
         </p>
     {% endif %}
-    {% if exercise.reviewed_by %}
+    {% if exercise.feedback_by %}
         <p>
-            <i>ansvarlig: </i> {{ exercise.reviewed_by|name }}
+            <i>ansvarlig: </i> {{ exercise.feedback_by|name }}
         </p>
     {% endif %}
     {% include 'assignments/card/exercise_review_form.html' %}

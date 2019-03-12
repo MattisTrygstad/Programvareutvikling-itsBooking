@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, ListView, UpdateView, TemplateView
 
-from assignments.forms import ExerciseReviewForm
+from assignments.forms import ExerciseFeedbackForm
 from assignments.models import Exercise
 from booking.models import Course
 
@@ -20,7 +20,7 @@ class ExerciseList(UserPassesTestMixin, TemplateView):
         context = super().get_context_data()
         course = get_object_or_404(Course, slug=self.kwargs['slug'])
         context.update({'course': course,
-                        'form': ExerciseReviewForm(),
+                        'form': ExerciseFeedbackForm(),
                         'exercise_list': course.exercise_uploads.all()})
         return context
 
@@ -32,12 +32,12 @@ class ExerciseList(UserPassesTestMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         exercise_pk = self.request.POST['exercise_pk']
         # handle reviews through a separate view
-        return ExerciseReview.as_view()(request, *args, **kwargs, pk=exercise_pk)
+        return ExerciseFeedback.as_view()(request, *args, **kwargs, pk=exercise_pk)
 
 
-class ExerciseReview(UserPassesTestMixin, UpdateView):
+class ExerciseFeedback(UserPassesTestMixin, UpdateView):
     model = Exercise
-    form_class = ExerciseReviewForm
+    form_class = ExerciseFeedbackForm
 
     def get_success_url(self):
         return HttpResponseRedirect(

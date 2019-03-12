@@ -69,7 +69,7 @@ class ExerciseTest(TestCase):
         self.test_file_upload()
         self.exercise = Exercise.objects.first()
         post = lambda: self.client.post(reverse('exercise_uploads_list', kwargs={'slug': self.course.slug}),
-                                       {'approved': True, 'exercise_pk': self.exercise.pk, 'review_text': 'abc'})
+                                       {'approved': True, 'exercise_pk': self.exercise.pk, 'feedback_text': 'abc'})
         response = post()
         self.assertEqual(403, response.status_code, msg="unauthorized users should be denied review access")
 
@@ -77,7 +77,7 @@ class ExerciseTest(TestCase):
         self.user.groups.add(Group.objects.create(name='assistants'))
         response = post()
         self.exercise.refresh_from_db()
-        self.assertEqual(self.exercise.reviewed_by, self.user)  # user should get registered as reviewer
+        self.assertEqual(self.exercise.feedback_by, self.user)  # user should get registered as reviewer
         self.assertEqual(302, response.status_code)
 
         # assistants should be allowed to edit their own reviews
