@@ -9,4 +9,4 @@ test:
   - coverage report --skip-covered | grep TOTAL
   artifacts:
     paths:
-      - coverage_html_report
+      - coverage_html_report/
