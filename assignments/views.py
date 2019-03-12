@@ -46,7 +46,7 @@ class ExerciseFeedback(UserPassesTestMixin, UpdateView):
 
     def form_valid(self, form):
         exercise = form.save(commit=False)
-        exercise.reviewed_by = self.request.user
+        exercise.feedback_by = self.request.user
         exercise.save()
         messages.success(self.request, 'Tilbakemelding vellykket!')
         return self.get_success_url()
@@ -56,8 +56,8 @@ class ExerciseFeedback(UserPassesTestMixin, UpdateView):
         Only course coordinators and assistants can review exercise uploads
         course coordinators can overrule previous reviews, so can the assistants who it themselves.
         """
-        if self.get_object().reviewed_by is not None:  # there already exists a review
-            return self.get_object().reviewed_by == self.request.user or \
+        if self.get_object().feedback_by is not None:  # there already exists a review
+            return self.get_object().feedback_by == self.request.user or \
                    self.request.user.groups.filter(name='course_coordinators').exists()
         return self.request.user.groups.filter(Q(name='assistants') | Q(name='course_coordinators'))
 
