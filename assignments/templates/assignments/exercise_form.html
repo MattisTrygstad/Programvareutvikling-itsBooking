@@ -10,11 +10,11 @@
         {% csrf_token %}
         <div class="js-upload uk-placeholder uk-text-center">
             <span uk-icon="icon: cloud-upload"></span>
-            <span class="uk-text-middle">Attach binaries by dropping them here or</span>
+            <span class="uk-text-middle">Legg ved filer ved å dra og slippe dem her, eller</span>
             <div class="js-upload" uk-form-custom>
                 {{ form.file }}
                 <button class="uk-button uk-button-default uk-button-small" type="button" tabindex="-1">
-                    Click here</button> to open your filebrowser.
+                    klikk her</button> for å åpne filutforskeren din.
             </div>
             <br>
             <span id="filename" class="uk-link"></span>
