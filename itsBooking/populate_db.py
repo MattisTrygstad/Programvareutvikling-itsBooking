@@ -21,7 +21,7 @@ def setup_course(course, cc):
     # Register students for registration_intervals
     for bi in course.booking_intervals.all():
         registered_assistants = bi.assistants.all()
-        if  not registered_assistants:
+        if not registered_assistants:
            continue
 
         for ri in bi.reservation_intervals.all():
