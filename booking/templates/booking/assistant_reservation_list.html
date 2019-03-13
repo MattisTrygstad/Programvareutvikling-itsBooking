@@ -3,20 +3,23 @@
 {% block body %}
 <style>
 td {font-size: 16px;}
-#hei {color:red;}
+#header {width:95%; margin-left: 2%;}
 </style>
 
     <div class = "uk-container uk-container-medium">
-        <table class="uk-table uk-table-middle ">
-                        <thead>
-                            <tr>
-                                <th class="uk-width-small">Emnekode</th>
-                                <th class="uk-width-medium">Emne</th>
-                                <th class="uk-width-small">Dag</th>
-                                <th class="uk-width-small">Tid</th>
-                            </tr>
-                        </thead>
-        </table>
+
+            <table class="uk-table uk-table-middle" id="header">
+                <thead>
+                    <tr>
+                        <th class="uk-width-small">Emnekode</th>
+                        <th class="uk-width-medium">Emne</th>
+                        <th class="uk-width-small">Dag</th>
+                        <th class="uk-width-small">Tid</th>
+                        <th class="uk-width-small">Antall studenter</th>
+                    </tr>
+                </thead>
+            </table>
+
         {% for bookinginterval in object_list %}
                 <ul uk-accordion>
                     <li>
@@ -27,6 +30,7 @@ td {font-size: 16px;}
                                     <td class="uk-width-medium">{{ bookinginterval.course }}</td>
                                     <td class="uk-width-small">{{ bookinginterval.get_day_display|nob_day}}</td>
                                     <td class="uk-width-small">{{ bookinginterval.start }} - {{ bookinginterval.end }}</td>
+                                    <td class="uk-width-small">{{ bookinginterval|student_count}}</td>
                                 </tr>
                             </table>
                         </a>

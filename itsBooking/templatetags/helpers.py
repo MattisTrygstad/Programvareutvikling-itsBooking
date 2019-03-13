@@ -36,3 +36,11 @@ def first_name(user):
     if user.first_name:
         return user.first_name.split(" ")[0]
     return user.username
+
+@register.filter('student_count')
+def student_count_in_reservation_interval(bookinginterval):
+    count=0;
+    for reservation in bookinginterval.reservation_intervals.all():
+        if reservation.connections.first()!=None:
+            count+=1;
+    return  count
