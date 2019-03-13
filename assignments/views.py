@@ -93,7 +93,7 @@ class StudentExerciseList(UserPassesTestMixin, TemplateView):
         context = super().get_context_data()
         course = get_object_or_404(Course, slug=self.kwargs['slug'])
         context.update({'course': course,
-                        'form': ExerciseReviewForm(),
+                        'form': ExerciseFeedbackForm(),
                         'exercise_list': course.exercise_uploads.filter(student=self.request.user)})
         return context
 
