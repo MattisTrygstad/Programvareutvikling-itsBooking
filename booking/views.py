@@ -170,12 +170,13 @@ class ReservationList(UserPassesTestMixin, ListView):
             rc = ReservationConnection.objects.get(pk=request.POST['reservation_connection_pk'])
             if rc.student == self.request.user:
                 rc.delete()
-                messagetext = f'Du er nå meldt av reservasjonen!'
-                messages.success(request,messagetext)
+                success_message = f'Du er nå meldt av reservasjonen!'
+                messages.success(request, success_message)
                 return HttpResponseRedirect(request.path)
             else:
-                return PermissionDenied("Fy!")
+                raise PermissionDenied("Fy!")
         except ReservationConnection.DoesNotExist:
-            messages.error(request, 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.')
+            error_message = 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.'
+            messages.error(request, error_message)
             return self.get(request)
 

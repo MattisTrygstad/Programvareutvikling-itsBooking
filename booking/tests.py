@@ -1,14 +1,12 @@
-import django
 from django.contrib.auth.models import User, Group
 
 import json
 
 from django.db import IntegrityError
 from django.test import TestCase, Client
-from django.test.utils import setup_test_environment, teardown_test_environment
 from django.urls import reverse, reverse_lazy
 
-from .models import Course, BookingInterval, ReservationConnection
+from .models import Course, ReservationConnection
 
 
 class CourseViewTest(TestCase):
@@ -134,7 +132,8 @@ class ReservationTest(TestCase):
         ), {'reservation_connection_pk': self.connection.pk}
         )
         self.assertEqual(302, response.status_code)
-        self.assertIs(False, ReservationConnection.objects.filter(pk=self.connection.pk).exists())
+        self.assertFalse(ReservationConnection.objects.filter(pk=self.connection.pk).exists())
+
 
 class CourseModelTest(TestCase):
 
@@ -198,7 +197,8 @@ class MakeAssistantsAvailableTest(TestCase):
 
         response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
-        self.assertEqual(403, response.status_code, msg="Only assistants registered for the course should be able to register for intervals")
+        self.assertEqual(403, response.status_code,
+                         msg="Only assistants registered for the course should be able to register for intervals")
 
     def test_registration_available_for_interval(self):
         """
@@ -232,4 +232,3 @@ class MakeAssistantsAvailableTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(content['registration_available'], True)
         self.assertEqual(content['available_assistants_count'], 0)
-
