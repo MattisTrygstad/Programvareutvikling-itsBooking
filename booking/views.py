@@ -6,8 +6,10 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.views.generic import DetailView, ListView
+from django.urls import reverse
+from django.views.generic import DetailView, ListView, FormView
 from django.shortcuts import render
+from django.views.generic.base import View
 
 from booking.forms import ReservationConnectionForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection

@@ -106,8 +106,10 @@ class ReservationTest(TestCase):
         # user is student
         response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(200, response.status_code)
-        self.assertQuerysetEqual(response.context['object_list'],
-                         ReservationConnection.objects.filter(student=self.user), transform=lambda x: x)
+        self.assertQuerysetEqual(
+            response.context['object_list'],
+            ReservationConnection.objects.filter(student=self.user), transform=lambda x: x
+        )
 
         # user is no longer a student
         self.student_group.user_set.remove(self.user)
