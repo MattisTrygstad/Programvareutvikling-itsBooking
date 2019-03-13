@@ -1,0 +1,28 @@
+{% extends 'itsBooking/base.html' %}
+{% load helpers %}
+
+{% block body %}
+
+<div class="uk-container uk-container-small">
+
+    {% if request.user|in_group:"students" %}
+        <h2>Dine opplastede øvinger - {{ course }}</h2>
+    {% else %}
+        <h2>Opplastinger - {{ course }}</h2>
+    {% endif %}
+
+    {% include 'generic/display_messages.html' %}
+
+    <div class="uk-child-width-1-1@l" uk-grid="masonry: true">
+        {% for exercise in exercise_list %}
+            <div>
+                {% include 'assignments/card/exercise_card.html' %}
+            </div>
+        {% empty %}
+            <h4>Det har ikke blitt lastet opp noen øvinger ennå</h4>
+        {% endfor %}
+    </div>
+    <br>
+</div>
+
+{% endblock %}

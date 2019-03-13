@@ -1,22 +1,26 @@
 from django.contrib.auth.models import User, Group
 
 import json
+
 from django.db import IntegrityError
 from django.test import TestCase, Client
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
-from .models import Course, BookingInterval
+from .models import Course, ReservationConnection, BookingInterval
 
 
 class CourseViewTest(TestCase):
 
     def setUp(self):
-        self.client = Client()
         self.course = Course.objects.create(title='algdat', course_code='tdt4125')
 
     def test_get_course_detail(self):
         response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code, msg='users must be logged in to see booking tables')
+        User.objects.create_user(username='USERNAME', password='123')
+        self.client.login(username='USERNAME', password='123')
+        response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
+        self.assertEqual(403, response.status_code, 'user must belong to a group')
 
     def test_max_assistants_update(self):
         # setup variables
@@ -67,7 +71,7 @@ class ReservationTest(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(40, messages[0].level)  # level:40 => error
 
-    def test_make_reservation_deny_success(self):
+    def test_make_reservation_success(self):
         # setup assistant and booking interval
         assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
         assistant_group = Group.objects.create(name='assistants')
@@ -75,14 +79,85 @@ class ReservationTest(TestCase):
         self.course.booking_intervals.first().min_num_assistants = 1
         self.course.booking_intervals.first().assistants.add(assistant_user)
         self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        rc_count = self.reservation.connections.count()
 
-        response = self.client.post(reverse(
-            'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.reservation.pk}
+        response = self.client.post(
+            reverse('course_detail', kwargs={'slug': self.course.slug}),
+            {'reservation_pk': self.reservation.pk}
         )
-        messages = list(response.context['messages'])
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(rc_count + 1, self.reservation.connections.count())
+
+    def test_student_reservation_list(self):
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        ReservationConnection.objects.create(
+            reservation_interval=self.reservation,
+            student=self.user,
+            assistant=assistant_user
+        )
+
+        # user is student
+        response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(200, response.status_code)
-        self.assertEqual(25, messages[0].level)  # level:25 => success
+        self.assertQuerysetEqual(
+            response.context['object_list'],
+            ReservationConnection.objects.filter(student=self.user), transform=lambda x: x
+        )
+
+        # user is no longer a student
+        self.student_group.user_set.remove(self.user)
+        response = self.client.get(reverse_lazy('student_reservation_list'))
+        self.assertEqual(403, response.status_code)
+
+
+    def test_assistant_reservation_list(self):
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        self.client.logout()
+        self.client.login(username='ASSISTANT', password='123')
+        ReservationConnection.objects.create(
+            reservation_interval=self.reservation,
+            student=self.user,
+            assistant=assistant_user
+        )
+        # user is assistant
+        response = self.client.get(reverse_lazy('assistant_reservation_list'))
+        self.assertEqual(200, response.status_code)
+        self.assertQuerysetEqual(response.context['object_list'],
+                                 BookingInterval.objects.filter(assistants=assistant_user), transform=lambda x: x)
+
+        # user is no longer a assistant
+        assistant_group.user_set.remove(assistant_user)
+        response = self.client.get(reverse_lazy('assistant_reservation_list'))
+        self.assertEqual(403, response.status_code)
+
+    def test_ReservationList_post(self):
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        self.connection = ReservationConnection.objects.create(reservation_interval=self.reservation,
+            student=self.user,
+            assistant=assistant_user
+        )
+        response = self.client.post(reverse_lazy(
+            'student_reservation_list'
+        ), {'reservation_connection_pk': self.connection.pk}
+        )
+        self.assertEqual(302, response.status_code)
+        self.assertFalse(ReservationConnection.objects.filter(pk=self.connection.pk).exists())
+
 
 
 class CourseModelTest(TestCase):
@@ -147,7 +222,8 @@ class MakeAssistantsAvailableTest(TestCase):
 
         response = self.client.get(reverse('bi_registration_switch'),
                                    {'nk': self.booking_interval.nk})
-        self.assertEqual(403, response.status_code, msg="Only assistants registered for the course should be able to register for intervals")
+        self.assertEqual(403, response.status_code,
+                         msg="Only assistants registered for the course should be able to register for intervals")
 
     def test_registration_available_for_interval(self):
         """
@@ -167,9 +243,9 @@ class MakeAssistantsAvailableTest(TestCase):
     def test_make_unavailable_for_interval(self):
         """
         An assistant makes himself unavailable for an interval with only one assistant
-         should result in registration_available=True and available_assistants_count=0
-         """
-        #Registering the assistant for the interval
+        should result in registration_available=True and available_assistants_count=0
+        """
+        # Registering the assistant for the interval
         self.booking_interval.assistants.add(self.user)
 
         response = self.client.get(reverse('bi_registration_switch'),
@@ -181,4 +257,3 @@ class MakeAssistantsAvailableTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(content['registration_available'], True)
         self.assertEqual(content['available_assistants_count'], 0)
-

@@ -7,16 +7,16 @@ admin.site.unregister(Group)
 
 
 class UserAdmin(admin.ModelAdmin):
-    readonly_fields = ('is_staff', 'is_superuser', 'password', 'last_login', 'date_joined')
+    readonly_fields = ('last_login', 'date_joined')
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)
 
-        #
         choices = list(form.base_fields['groups'].choices)
-        usr_group = (obj.groups.first().id, str(obj.groups.first()))
-        del choices[choices.index(usr_group)]
-        choices.append(usr_group)
+        if obj is not None:
+            usr_group = (obj.groups.first().id, str(obj.groups.first()))
+            del choices[choices.index(usr_group)]
+            choices.append(usr_group)
 
         form.base_fields['groups'] = forms.ChoiceField(
             choices=reversed(choices),

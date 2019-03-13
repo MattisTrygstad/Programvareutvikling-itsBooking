@@ -1,13 +1,9 @@
+image: python:latest
+
+before_script:
+  - pip install -r requirements.txt
+
 test:
   script:
-  - apt-get update
-  - wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
-  - tar xvf Python-3.6.3.tgz
-  - cd Python-3.6.3
-  - ./configure --enable-optimizations
-  - make -j8 build_all 
-  - make -j8 install
-  - cd ..
-  - python3.6 -m pip install --upgrade pip
-  - python3.6 -m pip install -r requirements.txt
-  - python3.6 manage.py test
+  - coverage run --source='.' manage.py test
+  - coverage report --skip-covered | grep TOTAL

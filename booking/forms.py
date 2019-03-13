@@ -4,7 +4,7 @@ from booking.models import ReservationInterval
 from itsBooking.templatetags.helpers import get_available_reservation_slots
 
 
-class ReservationForm(forms.Form):
+class ReservationConnectionForm(forms.Form):
     reservation_pk = forms.IntegerField(widget=forms.HiddenInput())
 
     def clean(self):
