@@ -24,7 +24,7 @@ class Exercise(models.Model):
     file = models.FileField(
         upload_to=get_exercise_filepath
     )
-    review_text = models.TextField(
+    feedback_text = models.TextField(
         max_length=1500,
         blank=True,
         null=True,
@@ -33,7 +33,7 @@ class Exercise(models.Model):
         blank=True,
         null=True,
     )
-    reviewed_by = models.ForeignKey(
+    feedback_by = models.ForeignKey(
         User,
         blank=True,
         null=True,

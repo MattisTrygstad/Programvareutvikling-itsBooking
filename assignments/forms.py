@@ -3,11 +3,11 @@ from django import forms
 from assignments.models import Exercise
 
 
-class ExerciseReviewForm(forms.ModelForm):
+class ExerciseFeedbackForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['review_text'].widget.attrs['class'] = 'uk-form uk-textarea uk-form-small'
+        self.fields['feedback_text'].widget.attrs['class'] = 'uk-form uk-textarea uk-form-small'
         self.fields['approved'].widget = forms.RadioSelect(
             choices=[
                 (True, 'Godkjenn'),
@@ -19,5 +19,5 @@ class ExerciseReviewForm(forms.ModelForm):
 
     class Meta:
         model = Exercise
-        fields = ('review_text', 'approved', )
+        fields = ('feedback_text', 'approved',)
 

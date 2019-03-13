@@ -4,6 +4,7 @@
 
 .idea/
 htmlcov/
+coverage_html_report/
 /.vscode
 
 ### Django ###

@@ -3,12 +3,12 @@
 
 {% block body %}
 
-<div class="uk-container uk-container-medium">
+    <div class="uk-container uk-container-medium">
 
-    <h2>{{ course.course_code }} - {{ course.title }}</h2>
+        <h2>{{ course.course_code }} - {{ course.title }}</h2>
 
-    {% include 'generic/display_messages.html' %}
-    {% include 'generic/display_form_errors.html' %}
+        {% include 'generic/display_messages.html' %}
+        {% include 'generic/display_form_errors.html' %}
 
     {% if request.user|in_group:'students' %}
         <a href="{% url 'upload_exercise' slug=course.slug %}">
@@ -30,10 +30,10 @@
         </ul>
 
         <ul class="uk-switcher uk-margin">
-            <li>Oversikt placeholder</li>
+            <li>{% include 'booking/table/cc_overview.html' %}</li>
             <li>{% include 'booking/table/set_studentassistants.html' %}</li>
             <li>{% include 'booking/table/cc_studass_overview.html' %}</li>
-            <li>Oppmeldte studenter placeholder</li>
+            <li>{% include 'booking/table/cc_student_overview.html' %}</li>
         </ul>
     {% elif request.user|in_group:'assistants' %}
         <a href="{% url 'exercise_uploads_list' slug=course.slug %}">

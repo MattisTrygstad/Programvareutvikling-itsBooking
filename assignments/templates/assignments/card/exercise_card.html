@@ -37,12 +37,12 @@
     {% if exercise.review_text %}
         <p class="uk-text-emphasis">Kommentar: </p>
         <p>
-            {{ exercise.review_text }}
+            {{ exercise.feedback_text }}
         </p>
     {% endif %}
     {% if exercise.reviewed_by and not request.user|in_group:"students"%}
         <p>
-            <i>ansvarlig: </i> {{ exercise.reviewed_by|name }}
+            <i>ansvarlig: </i> {{ exercise.feedback_by|name }}
         </p>
     {% endif %}
     {% include 'assignments/card/exercise_review_form.html' %}

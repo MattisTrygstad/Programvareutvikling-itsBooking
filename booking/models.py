@@ -142,12 +142,18 @@ class ReservationInterval(models.Model):
     start = models.TimeField()
     end = models.TimeField()
 
+
     def _get_available_assistant(self):
         reserved_assistants = User.objects.filter(bookings__index=self.index)
         bi_assistants = self.booking_interval.assistants.all()
         available_assistants = bi_assistants.difference(reserved_assistants)  # all assistants minus reserved ones
         assert available_assistants.count() > 0, 'No assistants available for this reservation interval'
         return available_assistants[0]
+
+    class Meta:
+        ordering = [
+            'booking_interval__day'
+        ]
 
 
 class ReservationConnection(models.Model):
