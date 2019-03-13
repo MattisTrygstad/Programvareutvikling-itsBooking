@@ -1,10 +1,15 @@
 {% extends 'itsBooking/base.html' %}
+{% load helpers %}
 
 {% block body %}
 
 <div class="uk-container uk-container-small">
 
-    <h2>Opplastinger - {{ course }}</h2>
+    {% if request.user|in_group:"students" %}
+        <h2>Dine opplastede øvinger - {{ course }}</h2>
+    {% else %}
+        <h2>Opplastinger - {{ course }}</h2>
+    {% endif %}
 
     {% include 'generic/display_messages.html' %}
 

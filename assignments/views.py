@@ -13,7 +13,7 @@ from assignments.models import Exercise
 from booking.models import Course
 
 
-class ExerciseList(UserPassesTestMixin, TemplateView):
+class CourseExerciseList(UserPassesTestMixin, TemplateView):
     template_name = 'assignments/exercise_list.html'
 
     def get_context_data(self, **kwargs):
@@ -81,3 +81,23 @@ class UploadExercise(SuccessMessageMixin, CreateView):
         # needed for the success message
         form.cleaned_data['course'] = exercise.course
         return super().form_valid(form)
+
+
+class StudentExerciseList(UserPassesTestMixin, TemplateView):
+    template_name = 'assignments/exercise_list.html'
+
+    def get_queryset(self):
+        return Exercise.objects.filter(course__slug=self.kwargs['slug'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        course = get_object_or_404(Course, slug=self.kwargs['slug'])
+        context.update({'course': course,
+                        'form': ExerciseFeedbackForm(),
+                        'exercise_list': course.exercise_uploads.filter(student=self.request.user)})
+        return context
+
+    def test_func(self):
+        allowed_groups = Group.objects.filter(name='students')
+        usr_groups = self.request.user.groups.all()
+        return any(g in allowed_groups for g in usr_groups)

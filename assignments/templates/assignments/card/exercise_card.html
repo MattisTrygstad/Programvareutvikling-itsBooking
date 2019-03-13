@@ -14,28 +14,33 @@
 <div class="uk-card uk-card-default uk-card-body uk-card-small">
     {% include 'assignments/card/exercise_status_badge.html' %}
     <h3 class="uk-card-title">
-        {{ exercise.student|name }}
+        {% if request.user|in_group:"assistants" or request.user|in_group:"course_coordinators" %}
+            {{ exercise.student|name }}
+        {% endif %}
     </h3>
     <p>
         <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
-        {% if exercise.approved is None %}
-            <button class="uk-button-primary uk-button uk-float-right" id="{{ exercise.pk }}-button"
-                    onclick="toggle_review_form(this)">
-                Gi tilbakemelding
-            </button>
-        {% elif request.user|in_group:"course_coordinators" or request.user == exercise.feedback_by %}
-            <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
-                    onclick="override_review(this)">
-                Ny vurdering
-            </button>
+        {% if request.user|in_group:"assistants" or request.user|in_group:"course_coordinators" %}
+            {% if request.user == exercise.reviewed_by or request.user|in_group:"course_coordinators" %}
+                <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
+                        onclick="override_review(this)">
+                    Ny vurdering
+                </button>
+            {% elif exercise.approved is None %}
+                <button class="uk-button-primary uk-button uk-float-right" id="{{ exercise.pk }}-button"
+                        onclick="toggle_review_form(this)">
+                    Gi tilbakemelding
+                </button>
+            {% endif %}
         {% endif %}
     </p>
-    {% if exercise.feedback_text %}
+    {% if exercise.review_text %}
+        <p class="uk-text-emphasis">Kommentar: </p>
         <p>
             {{ exercise.feedback_text }}
         </p>
     {% endif %}
-    {% if exercise.feedback_by %}
+    {% if exercise.reviewed_by and not request.user|in_group:"students"%}
         <p>
             <i>ansvarlig: </i> {{ exercise.feedback_by|name }}
         </p>
