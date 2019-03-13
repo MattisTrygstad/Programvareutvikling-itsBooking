@@ -109,6 +109,34 @@ class ReservationTest(TestCase):
         response = self.client.get(reverse_lazy('student_reservation_list'))
         self.assertEqual(403, response.status_code)
 
+    def test_assistant_reservation_list(self):
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+
+        self.client.logout()
+        self.client.login(username='ASSISTANT', password='123')
+
+        ReservationConnection.objects.create(
+            reservation_interval=self.reservation,
+            student=self.user,
+            assistant=assistant_user
+        )
+
+        # user is assistant
+        response = self.client.get(reverse_lazy('assistant_reservation_list'))
+        self.assertEqual(200, response.status_code)
+        self.assertQuerysetEqual(response.context['object_list'],
+                        BookingInterval.objects.filter(assistants=assistant_user), transform=lambda x: x)
+
+        # user is no longer a assistant
+        assistant_group.user_set.remove(assistant_user)
+        response = self.client.get(reverse_lazy('assistant_reservation_list'))
+        self.assertEqual(403, response.status_code)
+
 class CourseModelTest(TestCase):
 
     def test_create_course(self):
