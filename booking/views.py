@@ -210,3 +210,22 @@ class ReservationList(UserPassesTestMixin, ListView):
             error_message = 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.'
             messages.error(request, error_message)
             return self.get(request)
+
+
+class AssistantReservationList(UserPassesTestMixin, ListView):
+    template_name = 'booking/assistant_reservation_list.html'
+
+    def get_queryset(self):
+        return BookingInterval.objects.filter(assistants=self.request.user.id)
+
+    def get_queryset_students(self):
+        return ReservationConnection.objects.filter(assistants=self.request.user.id)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context.update({'days' : list(calendar.day_name)[0:5]})
+        return context
+
+    def test_func(self):
+        return self.request.user.groups.filter(name="assistants").exists()
+

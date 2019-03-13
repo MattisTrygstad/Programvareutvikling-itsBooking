@@ -1,0 +1,61 @@
+{% extends 'itsBooking/base.html' %}
+{% load helpers %}
+{% block body %}
+
+    <style>
+td {font-size: 16px;}
+    #header {width: 95%; margin-left: 2%;}
+</style>
+    <div class = "uk-container uk-container-medium">
+            <table class="uk-table uk-table-middle" id="header">
+                <thead>
+                <tr>
+                    <th class="uk-width-small">Emnekode</th>
+                    <th class="uk-width-medium">Emne</th>
+                    <th class="uk-width-small">Dag</th>
+                    <th class="uk-width-small">Tid</th>
+                    <th class="uk-width-small">Antall reservasjoner</th>
+                </tr>
+                </thead>
+             </table>
+    </div>
+        {% for bookinginterval in object_list %}
+                <ul uk-accordion>
+                    <li>
+                        <a class="uk-accordion-title uk-card uk-card-default uk-card-body">
+                            <table class="uk-table uk-table-middle">
+                                <tr>
+                                    <td class="uk-width-small">{{ bookinginterval.course.course_code }}</td>
+                                    <td class="uk-width-medium">{{ bookinginterval.course }}</td>
+                                    <td class="uk-width-small">{{ bookinginterval.get_day_display|nob_day}}</td>
+                                    <td class="uk-width-small">{{ bookinginterval.start }} - {{ bookinginterval.end }}</td>
+                                    <td class="uk-width-small">{{ bookinginterval|student_count}}</td>
+                                </tr>
+                            </table>
+                        </a>
+                        <div class="uk-accordion-content uk-background-muted">
+                            <table class="uk-table uk-table-small uk-table-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="uk-width-small uk-text-right">Kvartersintervall</th>
+                                        <th class="uk-width-small">Student</th>
+                                    </tr>
+                                </thead>
+                                {% for reservation in bookinginterval.reservation_intervals.all %}
+                                    <tr>
+                                    <td class="uk-width-small uk-text-right"> {{ reservation.start }} - {{ reservation.end }}</td>
+                                    {% if reservation.connections.first != null %}
+                                        <td class="uk-width-small uk-text-emphasis">{{ reservation.connections.first.student.get_full_name}}</td>
+                                        {% else%}
+                                        <td><em class="uk-width-small uk-text-danger">Ingen</em></td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </li>
+                </ul>
+        {% endfor %}
+    </div>
+{% endblock body %}
+<h3 class="uk-heading-bullet">{{ reservation  }}</h3>
