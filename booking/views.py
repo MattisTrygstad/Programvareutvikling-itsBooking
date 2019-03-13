@@ -5,10 +5,9 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import DetailView, ListView, FormView
-from django.shortcuts import render
 from django.views.generic.base import View
 
 from booking.forms import ReservationConnectionForm
@@ -43,7 +42,7 @@ class StudentTable(TableView):
                     'stop': time(hour=hour + (15 * (i + 1)) // 60, minute=(15 * (i + 1)) % 60),
                     'reservations': [r.reservation_intervals.filter(index=i).first() for r in
                                      booking_intervals.prefetch_related('reservation_intervals')],
-                    }
+                }
                     for i in range(Course.NUM_RESERVATIONS_IN_BOOKING_INTERVAL)
                 ]
             }
@@ -75,7 +74,39 @@ class AssistantTable(TableView):
 
 
 class CourseCoordinatorTable(StudentTable):
-    pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        booking_intervals = BookingInterval.objects.filter(course=self.object)
+        assistants_registered_for_bi = []
+        booked_counter, available_intervals, full_booking_intervals = 0, 0, 0
+        for booking_interval in booking_intervals:
+            # Assistants registered for a booking interval
+            for assistant in booking_interval.assistants.all():
+                assistants_registered_for_bi.append(assistant)
+            # Share of reservation_intervals booked by students
+            for reservation_interval in booking_interval.reservation_intervals.all():
+                available_intervals += booking_interval.assistants.count()
+                booked_counter += reservation_interval.connections.count()
+            # Number of full booking intervals
+            if booking_interval.max_available_assistants == booking_interval.assistants.count():
+                full_booking_intervals += 1
+        context['assistants_registered_for_bi'] = list(set(assistants_registered_for_bi))
+        context['booked_ri_count'] = booked_counter
+        context['available_rintervals_count'] = available_intervals  # Reservation intervals available for students
+        context['full_bi_count'] = full_booking_intervals
+        context['available_bintervals_count'] = booking_intervals.all().count()  # Number of available booking intervals
+        context['available_assistants'] = Course.objects.get(pk=self.object.pk).assistants.all().count()
+        context['total_opening_time'] = booking_intervals.filter(max_available_assistants__gt=0).all().count() * 2
+
+        # Percentages for progress bar at cc_overview
+        context['assistant_percent'] = round(len(context['assistants_registered_for_bi']) / context['available_assistants'] * 100) \
+            if context['available_assistants'] != 0 else 0
+        context['student_percent'] = round(context['booked_ri_count'] / context['available_rintervals_count'] * 100) \
+            if context['available_rintervals_count'] != 0 else 0
+        context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100) \
+            if context['available_bintervals_count'] != 0 else 0
 
 
 class CreateReservationConnection(UserPassesTestMixin, FormView):
