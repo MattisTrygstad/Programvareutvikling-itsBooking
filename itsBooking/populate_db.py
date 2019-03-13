@@ -33,13 +33,7 @@ def setup_course(course, cc):
                     continue
                 student = random.choice(possible_students)
                 possible_students.remove(student)
-                reservation = ReservationConnection.objects.create(reservation_interval = ri, student = student)
-                reservation.save()
-
-
-
-
-
+                ReservationConnection.objects.create(reservation_interval = ri, student = student)
 
 def generate_users(group, group_list, number):
     username = str(group)[:-1]
