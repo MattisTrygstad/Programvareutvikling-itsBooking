@@ -100,13 +100,6 @@ class CreateReservationView(DetailView):
     def get_success_message(self, reservation_connection):
         return f'Reservasjon opprettet! Din stud. ass. er {name(reservation_connection.assistant)}'
 
-
-
-
-
-
-
-
 def update_max_num_assistants(request):
     nk = request.GET.get('nk', None)
     num = request.GET.get('num', None)
@@ -122,7 +115,6 @@ def update_max_num_assistants(request):
 def bi_registration_switch(request):
     nk = request.GET.get('nk', None)
     booking_interval = BookingInterval.objects.get(nk=nk)
-
 
     if not booking_interval.course.assistants.filter(id=request.user.id).exists():
         raise PermissionDenied()
