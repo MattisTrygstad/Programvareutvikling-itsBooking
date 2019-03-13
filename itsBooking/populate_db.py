@@ -28,7 +28,7 @@ def setup_course(course, cc):
             possible_students = list.copy(students)
             for i in range(bi.assistants.all().count()):
                 r = random.randint(1,4)
-                # 10 % chance of registering a student.
+                # 25 % chance of registering a student.
                 if r != 1:
                     continue
                 student = random.choice(possible_students)
