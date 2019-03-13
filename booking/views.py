@@ -179,4 +179,3 @@ class ReservationList(UserPassesTestMixin, ListView):
             error_message = 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.'
             messages.error(request, error_message)
             return self.get(request)
-
