@@ -4,7 +4,7 @@ from faker import Faker
 from django.contrib.auth.models import Group, User
 from django.core import management
 
-from booking.models import Course
+from booking.models import Course, ReservationConnection
 
 
 def setup_course(course, cc):
@@ -18,7 +18,22 @@ def setup_course(course, cc):
             if random.randint(0, 2) == 2:
                 break
         bi.save()
+    # Register students for registration_intervals
+    for bi in course.booking_intervals.all():
+        registered_assistants = bi.assistants.all()
+        if not registered_assistants:
+           continue
 
+        for ri in bi.reservation_intervals.all():
+            possible_students = list.copy(students)
+            for i in range(bi.assistants.all().count()):
+                r = random.randint(1,4)
+                # 25 % chance of registering a student.
+                if r != 1:
+                    continue
+                student = random.choice(possible_students)
+                possible_students.remove(student)
+                ReservationConnection.objects.create(reservation_interval = ri, student = student)
 
 def generate_users(group, group_list, number):
     username = str(group)[:-1]

@@ -142,6 +142,7 @@ class ReservationInterval(models.Model):
     start = models.TimeField()
     end = models.TimeField()
 
+
     def _get_available_assistant(self):
         reserved_assistants = User.objects.filter(bookings__index=self.index)
         bi_assistants = self.booking_interval.assistants.all()
