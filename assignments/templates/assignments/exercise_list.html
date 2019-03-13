@@ -15,9 +15,12 @@
 
     <div class="uk-child-width-1-1@l" uk-grid="masonry: true">
         {% for exercise in exercise_list %}
-            <div>
-                {% include 'assignments/card/exercise_card.html' %}
-            </div>
+            {% if request.user|in_group:"students" and request.user == exercise.student or not request.user|in_group:"students" %}
+                <div>
+                    {% include 'assignments/card/exercise_card.html' %}
+                </div>
+
+            {% endif %}
         {% empty %}
             <h4>Det har ikke blitt lastet opp noen øvinger ennå</h4>
         {% endfor %}
