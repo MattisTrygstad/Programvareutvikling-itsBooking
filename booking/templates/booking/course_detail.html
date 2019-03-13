@@ -11,8 +11,14 @@
     {% include 'generic/display_form_errors.html' %}
 
     {% if request.user|in_group:'students' %}
+        <a href="{% url 'upload_exercise' slug=course.slug %}">
+            <h4>Last opp øving</h4>
+        </a>
         {% include 'booking/reservation_table.html' %}
     {% elif request.user|in_group:'course_coordinators' %}
+        <a href="{% url 'exercise_uploads_list' slug=course.slug %}">
+            <h4>Se opplastede øvinger</h4>
+        </a>
         <ul class="uk-subnav uk-subnav-pill" uk-switcher>
             <li><a href="#">Oversikt</a></li>
             <li><a href="#">Sett ant. studasser</a></li>
@@ -27,6 +33,9 @@
             <li>Oppmeldte studenter placeholder</li>
         </ul>
     {% elif request.user|in_group:'assistants' %}
+        <a href="{% url 'exercise_uploads_list' slug=course.slug %}">
+            <h4>Se opplastede øvinger</h4>
+        </a>
         {% include 'booking/table/assistant.html' %}
     {% endif %}
 </div>
