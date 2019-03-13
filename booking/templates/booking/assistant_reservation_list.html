@@ -3,20 +3,20 @@
 {% block body %}
 <style>
 td {font-size: 16px;}
-#hei {color:red;}
 </style>
 
     <div class = "uk-container uk-container-medium">
-        <table class="uk-table uk-table-middle ">
-                        <thead>
-                            <tr>
-                                <th class="uk-width-small">Emnekode</th>
-                                <th class="uk-width-medium">Emne</th>
-                                <th class="uk-width-small">Dag</th>
-                                <th class="uk-width-small">Tid</th>
-                            </tr>
-                        </thead>
-        </table>
+            <table class="uk-table uk-table-middle">
+                            <thead>
+                             <tr>
+                                    <th class="uk-width-small">Emnekode</th>
+                                    <th class="uk-width-medium">Emne</th>
+                                    <th class="uk-width-small">Dag</th>
+                                    <th class="uk-width-small">Tid</th>
+                                    <th class="uk-width-small">Antall reservasjoner</th>
+                                </tr>
+                            </thead>
+             </table>
         {% for bookinginterval in object_list %}
                 <ul uk-accordion>
                     <li>
@@ -40,11 +40,12 @@ td {font-size: 16px;}
                                 </thead>
                                 {% for reservation in bookinginterval.reservation_intervals.all %}
                                     <tr>
-                                        <td class="uk-width-small uk-text-right" id="hei">{{ reservation.start }} - {{ reservation.end }}</td>
-                                        <td class="uk-width-small">{{ reservation.connections.first.student.get_full_name}}
-                                        {% if reservation.connections.first == none %}
-                                            Ingen
-                                        {% endif %}</td>
+                                    <td class="uk-width-small uk-text-right"> {{ reservation.start }} - {{ reservation.end }}</td>
+                                    {% if reservation.connections.first != null %}
+                                        <td class="uk-width-small uk-text-emphasis">{{ reservation.connections.first.student.get_full_name}}</td>
+                                        {% else%}
+                                        <td><em class="uk-width-small uk-text-danger">Ingen</em></td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             </table>

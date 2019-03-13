@@ -102,6 +102,7 @@ class BookingInterval(models.Model):
         primary_key=True,
     )
 
+
     class Meta:
         ordering = [
             '-course', 'day', 'start'
