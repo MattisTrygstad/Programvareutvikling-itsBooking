@@ -44,9 +44,7 @@ class CreateReservationView(DetailView):
 
         booking_intervals = BookingInterval.objects.filter(course = self.object)
         assistants_registered_for_bi = []
-        booked_counter = 0
-        available_intervals = 0
-        full_booking_intervals = 0
+        booked_counter, available_intervals, full_booking_intervals  = 0
         for booking_interval in booking_intervals:
             # Assistants registered for a booking interval
             for assistant in booking_interval.assistants.all():
