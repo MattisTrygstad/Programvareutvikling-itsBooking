@@ -6,7 +6,7 @@
 <div class="uk-container uk-container-small">
 
     {% if request.user|in_group:"students" %}
-        <h2>Opplastede øvinger</h2>
+        <h2>Dine opplastede øvinger - {{ course }}</h2>
     {% else %}
         <h2>Opplastinger - {{ course }}</h2>
     {% endif %}
@@ -15,12 +15,9 @@
 
     <div class="uk-child-width-1-1@l" uk-grid="masonry: true">
         {% for exercise in exercise_list %}
-            {% if request.user|in_group:"students" and request.user == exercise.student or not request.user|in_group:"students" %}
-                <div>
-                    {% include 'assignments/card/exercise_card.html' %}
-                </div>
-
-            {% endif %}
+            <div>
+                {% include 'assignments/card/exercise_card.html' %}
+            </div>
         {% empty %}
             <h4>Det har ikke blitt lastet opp noen øvinger ennå</h4>
         {% endfor %}

@@ -14,15 +14,13 @@
 <div class="uk-card uk-card-default uk-card-body uk-card-small">
     {% include 'assignments/card/exercise_status_badge.html' %}
     <h3 class="uk-card-title">
-        {% if request.user|in_group:"students" %}
-            {{ exercise.course }}
-        {% else %}
+        {% if request.user|in_group:"assistants" or request.user|in_group:"course_coordinators" %}
             {{ exercise.student|name }}
         {% endif %}
     </h3>
     <p>
         <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
-        {% if not request.user|in_group:"students" %}
+        {% if request.user|in_group:"assistants" or request.user|in_group:"course_coordinators" %}
             {% if request.user == exercise.reviewed_by or request.user|in_group:"course_coordinators" %}
                 <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
                         onclick="override_review(this)">
@@ -37,9 +35,7 @@
         {% endif %}
     </p>
     {% if exercise.review_text %}
-        {% if request.user|in_group:"students" %}
-            <p class="uk-text-emphasis">Kommentar:</p>
-        {% endif %}
+        <p class="uk-text-emphasis">Kommentar: </p>
         <p>
             {{ exercise.review_text }}
         </p>
