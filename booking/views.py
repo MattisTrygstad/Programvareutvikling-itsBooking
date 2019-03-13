@@ -137,6 +137,3 @@ class AssistantReservationList(UserPassesTestMixin, ListView):
 
     def test_func(self):
         return self.request.user.groups.filter(name="assistants").exists()
-
-
-
