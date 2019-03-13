@@ -37,10 +37,18 @@ def first_name(user):
         return user.first_name.split(" ")[0]
     return user.username
 
-
 @register.filter(name='already_made_reservation')
 def user_has_made_reservation_for_interval(user, reservation_interval):
     for rc in reservation_interval.connections.all():
         if user == rc.student:
             return True
     return False
+
+@register.filter('student_count')
+def student_count_in_reservation_interval(booking_interval):
+    count=0;
+    for reservation in booking_interval.reservation_intervals.all():
+        if reservation.connections.first() is not None:
+            count+=1;
+    return  count
+

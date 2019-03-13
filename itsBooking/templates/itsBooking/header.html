@@ -13,6 +13,8 @@
                 <ul class="uk-navbar-nav">
                     {% if user|in_group:"students" %}
                     <li><a href="{% url 'student_reservation_list' %}">Mine reservasjoner</a></li>
+                        {% elif user|in_group:"assistants" %}
+                        <li><a href="{% url 'assistant_reservation_list' %}">Mine saltimer</a></li>
                     {% endif %}
                     <li><a href="{% url 'populate' %}">Populate DB</a></li>
                     <li><a href="{% url 'logout' %}">Logg ut</a></li>
