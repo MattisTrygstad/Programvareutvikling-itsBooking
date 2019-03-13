@@ -1,10 +1,9 @@
 import os
-import tempfile
 
 from django.contrib.auth.models import User, Group
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 
 from assignments.models import Exercise
 from booking.models import Course
@@ -104,3 +103,38 @@ class ExerciseTest(TestCase):
         self.assertTrue(os.path.isfile(path))
         self.exercise.delete()
         self.assertFalse(os.path.isfile(path))
+
+    def test_student_get_uploads_list_test_func(self):
+        """
+        only students should be able to access this page
+        """
+
+        self.user.groups.add(Group.objects.create(name='assistants'))
+        self.user.groups.add(Group.objects.create(name='students'))
+        self.user.groups.add(Group.objects.create(name='course_coordinators'))
+
+        response = self.client.get(reverse('student_exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        self.assertEqual(200, response.status_code)
+
+        self.user.groups.remove(Group.objects.get(name='students'))
+        response = self.client.get(reverse('student_exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        self.assertEqual(403, response.status_code)
+
+    def test_student_exercise_list(self):
+        # make sure that students can only see their own exercises
+        self.user.groups.add(Group.objects.create(name='students'))
+        image1 = SimpleUploadedFile("img.png", b"file_content", content_type="image/png")
+        self.exercise = Exercise.objects.create(file=image1, student=self.user, course=self.course)
+
+        response = self.client.get(reverse('student_exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        exercise_list = list(response.context['exercise_list'])
+        self.assertEqual(1, len(exercise_list))
+
+        self.user2 = User.objects.create_user(username='USER2', password=123)
+        self.client.logout()
+        self.client.login(username=self.user2.username, password=123)
+        self.user2.groups.add(Group.objects.get(name='students'))
+
+        response2 = self.client.get(reverse('student_exercise_uploads_list', kwargs={'slug': self.course.slug}))
+        exercise_list = list(response2.context['exercise_list'])
+        self.assertEqual(0, len(exercise_list))

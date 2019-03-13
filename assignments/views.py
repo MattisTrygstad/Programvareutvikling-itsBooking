@@ -94,11 +94,10 @@ class StudentExerciseList(UserPassesTestMixin, TemplateView):
         course = get_object_or_404(Course, slug=self.kwargs['slug'])
         context.update({'course': course,
                         'form': ExerciseReviewForm(),
-                        'exercise_list': course.exercise_uploads.all()})
+                        'exercise_list': course.exercise_uploads.filter(student=self.request.user)})
         return context
 
     def test_func(self):
-        allowed_groups = Group.objects.filter(Q(name='students'))
+        allowed_groups = Group.objects.filter(name='students')
         usr_groups = self.request.user.groups.all()
-        print(usr_groups)
         return any(g in allowed_groups for g in usr_groups)
