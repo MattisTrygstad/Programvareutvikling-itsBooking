@@ -23,7 +23,7 @@
     <p>
         <a href="{{ exercise.file.url }}">{{ exercise.filename }}</a>
         {% if not request.user|in_group:"students" %}
-            {% if request.user == exercise.reviewed_by %}
+            {% if request.user == exercise.reviewed_by or request.user|in_group:"course_coordinators" %}
                 <button class="uk-button-default uk-button uk-float-right" id="{{ exercise.pk }}-button"
                         onclick="override_review(this)">
                     Ny vurdering
