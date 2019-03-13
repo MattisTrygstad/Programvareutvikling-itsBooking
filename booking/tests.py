@@ -59,32 +59,6 @@ class ReservationTest(TestCase):
         )
         self.assertEqual(403, response.status_code)
 
-    def test_make_reservation_deny_not_available(self):
-        response = self.client.post(reverse(
-            'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.course.booking_intervals.first().reservation_intervals.first().pk}
-        )
-        messages = list(response.context['messages'])
-        self.assertEqual(40, messages[0].level)  # level:40 => error
-
-    def test_make_reservation_deny_success(self):
-        # setup assistant and booking interval
-        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
-        assistant_group = Group.objects.create(name='assistants')
-        assistant_group.user_set.add(assistant_user)
-        self.course.booking_intervals.first().min_num_assistants = 1
-        self.course.booking_intervals.first().assistants.add(assistant_user)
-        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
-
-        response = self.client.post(reverse(
-            'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.reservation.pk}
-        )
-        messages = list(response.context['messages'])
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(25, messages[0].level)  # level:25 => success
-
-
 class CourseModelTest(TestCase):
 
     def test_create_course(self):
