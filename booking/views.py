@@ -6,22 +6,31 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.views.generic import DetailView, ListView
+from django.urls import reverse
+from django.views.generic import DetailView, ListView, FormView
 from django.shortcuts import render
+from django.views.generic.base import View
 
-from booking.forms import ReservationForm
+from booking.forms import ReservationConnectionForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
 from itsBooking.templatetags.helpers import name
+from itsBooking.views import LoginView
+
+WEEKDAYS = list(calendar.day_name)[0:5]
 
 
-class CreateReservationView(DetailView):
+class TableView(DetailView):
+    model = Course
+    template_name = 'booking/course_detail.html'
+
+
+class StudentTable(TableView):
     model = Course
     template_name = 'booking/course_detail.html'
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
-        context['weekdays'] = list(calendar.day_name)[0:5]
+        context['weekdays'] = WEEKDAYS
         intervals = []
         for hour in range(Course.OPEN_BOOKING_TIME, Course.CLOSE_BOOKING_TIME, Course.BOOKING_INTERVAL_LENGTH):
             booking_intervals = BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))
@@ -29,47 +38,84 @@ class CreateReservationView(DetailView):
                 'start': time(hour),
                 'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
                 'booking_intervals': booking_intervals,
-                'assistants': booking_intervals.first().assistants.values_list('id'),
                 'reservation_intervals': [{
                     'start': time(hour=hour + (15 * i) // 60, minute=(15 * i) % 60),
                     'stop': time(hour=hour + (15 * (i + 1)) // 60, minute=(15 * (i + 1)) % 60),
-                    'reservations': sorted(list(ReservationInterval.objects.filter(
-                            Q(index=i) & Q(booking_interval__in=booking_intervals)
-                        )), key=lambda r: r.booking_interval.day),
+                    'reservations': [r.reservation_intervals.filter(index=i).first() for r in
+                                     booking_intervals.prefetch_related('reservation_intervals')],
                     }
                     for i in range(Course.NUM_RESERVATIONS_IN_BOOKING_INTERVAL)
                 ]
             }
             intervals.append(interval)
         context['intervals'] = intervals
-        context['form'] = ReservationForm()
+        context['form'] = ReservationConnectionForm()
         return context
 
     def post(self, request, *args, **kwargs):
-        form = ReservationForm(request.POST, request.FILES)
-        if request.user.groups.filter(name='students').exists():
-            if form.is_valid():
-                # create reservation
-                reservation_interval = ReservationInterval.objects.get(pk=form.cleaned_data['reservation_pk'])
-                reservation_connection = ReservationConnection.objects.create(
-                    reservation_interval=reservation_interval, student=request.user
-                )
+        return CreateReservationConnection.as_view()(request, *args, **kwargs)
 
-                # add success message
-                success_message = self.get_success_message(reservation_connection)
-                if success_message:
-                    messages.success(request, success_message)
 
-                self.object = self.get_object()
-                return self.render_to_response(context=self.get_context_data())
-            else:
-                messages.error(request, 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.')
-                return self.get(request, *args, **kwargs)
-        else:
-            raise PermissionDenied()
+class AssistantTable(TableView):
 
-    def get_success_message(self, reservation_connection):
-        return f'Reservasjon opprettet! Din stud. ass. er {name(reservation_connection.assistant)}'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['weekdays'] = WEEKDAYS
+        intervals = []
+        for hour in range(Course.OPEN_BOOKING_TIME, Course.CLOSE_BOOKING_TIME, Course.BOOKING_INTERVAL_LENGTH):
+            booking_intervals = BookingInterval.objects.filter(Q(start=time(hour=hour)) & Q(course=self.object))
+            interval = {
+                'start': time(hour),
+                'stop': time(hour + Course.BOOKING_INTERVAL_LENGTH),
+                'booking_intervals': booking_intervals,
+            }
+            intervals.append(interval)
+        context['intervals'] = intervals
+        return context
+
+
+class CourseCoordinatorTable(StudentTable):
+    pass
+
+
+class CreateReservationConnection(UserPassesTestMixin, FormView):
+    form_class = ReservationConnectionForm
+    template_name = 'booking/reservation_input.html'
+
+    def get_success_url(self):
+        return reverse('course_detail', kwargs={'slug': self.kwargs['slug']})
+
+    def test_func(self):
+        return self.request.user.groups.filter(name='students').exists()
+
+    def form_valid(self, form):
+        reservation_interval = ReservationInterval.objects.get(pk=form.cleaned_data['reservation_pk'])
+        reservation_connection = ReservationConnection.objects.create(
+            reservation_interval=reservation_interval, student=self.request.user
+        )
+        success_message = f'Reservasjon opprettet! Din stud. ass. er {name(reservation_connection.assistant)}'
+        messages.success(self.request, success_message)
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        error_message = 'Det oppsto en feil under opprettelsen av din reservajon. Vennligst prøv igjen.'
+        messages.error(self.request, error_message)
+        return super().form_invalid(form)
+
+
+class CourseDetailDelegator(View):
+    delegator = {
+        'students': StudentTable.as_view(),
+        'assistants': AssistantTable.as_view(),
+        'course_coordinators': CourseCoordinatorTable.as_view(),
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        # if user not logged in or not in any groups -> 403, if user is missing groups -> Login page
+        if not request.user.is_authenticated or not request.user.groups.all():
+            raise PermissionDenied
+        request_user_group = self.request.user.groups.first().name
+        return self.delegator.get(request_user_group, LoginView.as_view())(request, *args, **kwargs)
 
 
 def update_max_num_assistants(request):
@@ -84,26 +130,25 @@ def update_max_num_assistants(request):
 
     raise PermissionDenied()
 
+
 def bi_registration_switch(request):
     nk = request.GET.get('nk', None)
     booking_interval = BookingInterval.objects.get(nk=nk)
-
 
     if not booking_interval.course.assistants.filter(id=request.user.id).exists():
         raise PermissionDenied()
     if not booking_interval.assistants.filter(id=request.user.id).exists():
         booking_interval.assistants.add(request.user.id)
-        registration_available=False
+        registration_available = False
     else:
         booking_interval.assistants.remove(request.user.id)
         registration_available = True
-    available_assistants_count=booking_interval.assistants.all().count()
+    available_assistants_count = booking_interval.assistants.all().count()
     data = {
         'registration_available': registration_available,
         'available_assistants_count': available_assistants_count,
     }
     return JsonResponse(data)
-
 
 
 class ReservationList(UserPassesTestMixin, ListView):
@@ -113,9 +158,8 @@ class ReservationList(UserPassesTestMixin, ListView):
         return ReservationConnection.objects.filter(student=self.request.user)
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        self.object_list = self.get_queryset()
-        context = super().get_context_data(object_list=object_list, **kwargs)
-        context.update({'days' : list(calendar.day_name)[0:5]})
+        context = super().get_context_data()
+        context.update({'days': WEEKDAYS})
         return context
 
     def test_func(self):
@@ -126,12 +170,12 @@ class ReservationList(UserPassesTestMixin, ListView):
             rc = ReservationConnection.objects.get(pk=request.POST['reservation_connection_pk'])
             if rc.student == self.request.user:
                 rc.delete()
-                messagetext = f'Du er nå meldt av reservasjonen!'
-                messages.success(request,messagetext)
+                success_message = f'Du er nå meldt av reservasjonen!'
+                messages.success(request, success_message)
                 return HttpResponseRedirect(request.path)
             else:
-                return PermissionDenied("Fy!")
+                raise PermissionDenied("Fy!")
         except ReservationConnection.DoesNotExist:
-            messages.error(request, 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.')
+            error_message = 'Det oppsto en feil ved avmelding av din reservajon. Vennligst prøv igjen.'
+            messages.error(request, error_message)
             return self.get(request)
-

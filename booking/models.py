@@ -149,6 +149,11 @@ class ReservationInterval(models.Model):
         assert available_assistants.count() > 0, 'No assistants available for this reservation interval'
         return available_assistants[0]
 
+    class Meta:
+        ordering = [
+            'booking_interval__day'
+        ]
+
 
 class ReservationConnection(models.Model):
     reservation_interval = models.ForeignKey(
