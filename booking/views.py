@@ -108,6 +108,8 @@ class CourseCoordinatorTable(StudentTable):
         context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100) \
             if context['available_bintervals_count'] != 0 else 0
 
+        return context
+
 
 class CreateReservationConnection(UserPassesTestMixin, FormView):
     form_class = ReservationConnectionForm
