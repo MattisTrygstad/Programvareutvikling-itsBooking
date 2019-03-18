@@ -11,7 +11,9 @@ class Announcement(models.Model):
     content = models.TextField(max_length=1500)
     author = models.ForeignKey(User,
                                limit_choices_to={'groups__name': 'course_coordinators'},
-                               related_name='announcements' )
+                               related_name='announcements',
+                               on_delete=models.CASCADE,
+                               )
     timestamp = models.DateTimeField('date_published')
 
     def __str__(self):
