@@ -3,7 +3,28 @@
 {% load static %}
 {% block body %}
 <div class="uk-container uk-container-small">
-    {% for announcement in announcement_list %}
+    <ul uk-accordion>
+        <li class="uk-closed">
+            <a class="uk-accordion-title" href="#">Nytt innlegg</a>
+            <div class="uk-accordion-content">
+                <form method="POST" id="{{ announcement.pk }}-form">
+                    {% csrf_token %}
+                    <fieldset class="uk-fieldset">
+
+                        <input type="hidden" name="announcement_pk" value="{{ announcement.id }}">
+
+                        <div class="uk-margin">
+                            {{ form }}
+                        </div>
+
+                        <input type="submit" value="Send" class="uk-button uk-button-primary">
+                    </fieldset>
+                </form>
+            </div>
+        </li>
+    </ul>
+
+    {% for announcement in announcements %}
         <article class="uk-comment">
             <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
                 <div class="uk-width-auto">
