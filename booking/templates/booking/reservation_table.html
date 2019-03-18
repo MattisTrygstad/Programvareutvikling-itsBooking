@@ -39,7 +39,7 @@ button.table_button {height: 30px;}
                         </td>
                         {% for reservation in reservation_interval.reservations %}
                             <td>
-                                {% include 'booking/reservation_input.html' %}
+                                {% block table_content %}{% endblock table_content%}
                             </td>
                         {% endfor %}
                     </tr>
