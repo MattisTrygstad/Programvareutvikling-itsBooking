@@ -1,8 +1,9 @@
+import datetime
 from django.contrib.auth.models import User
 from django.db import models
+import datetime
+from django.utils import timezone
 
-
-#(Tittel, (ingress), innhold, forfatter, timestamp)
 
 class Announcement(models.Model):
     title = models.CharField(max_length=45)
@@ -13,5 +14,7 @@ class Announcement(models.Model):
                                related_name='announcements' )
     timestamp = models.DateTimeField('date_published')
 
+    def __str__(self):
+        return self.title
 
 
