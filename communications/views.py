@@ -24,9 +24,8 @@ class IndexView(TemplateView):
 
 
     def post(self, request, *args, **kwargs):
-        announcement_pk = self.request.POST['announcement_pk']
         # handle reviews through a separate view
-        return CreateView.as_view()(request, *args, **kwargs, pk=announcement_pk)
+        return CreateView.as_view()(request, *args, **kwargs)
 
 class CreateView(UpdateView):
     template_name = 'communications/announcements.html'

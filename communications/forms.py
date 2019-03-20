@@ -8,6 +8,7 @@ class AnnouncementForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['title'].widget.attrs['class'] = 'uk-form uk-textarea uk-form-small'
         self.fields['content'].widget.attrs['class'] = 'uk-form uk-textarea uk-form-small'
+
     class Meta:
         model = Announcement
         fields = ('title', 'content',)
