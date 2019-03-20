@@ -1,5 +1,7 @@
+{% extends 'booking/reservation_table.html' %}
 {% load helpers %}
 
+{% block table_content %}
 {% if user|already_made_reservation:reservation %}
     <button type="button" class="uk-button-danger uk-width-small table_button uk-align-center uk-margin-remove"
             uk-tooltip="{{ reservation|available_slots }}/{{ reservation.booking_interval.assistants.count }} ledige">
@@ -45,3 +47,5 @@
         </form>
     </div>
 </div>
+
+{% endblock table_content %}

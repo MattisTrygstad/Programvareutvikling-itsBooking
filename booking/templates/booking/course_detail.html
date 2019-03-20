@@ -17,7 +17,7 @@
         <a href="{% url 'student_exercise_uploads_list' slug=course.slug %}">
             <h4>Opplastede innleveringer</h4>
         </a>
-        {% include 'booking/reservation_table.html' %}
+        {% include 'booking/reservation_input.html' %}
     {% elif request.user|in_group:'course_coordinators' %}
         <a href="{% url 'exercise_uploads_list' slug=course.slug %}">
             <h4>Se opplastede øvinger</h4>

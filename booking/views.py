@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import DetailView, ListView, FormView
-from django.views.generic.base import View
+from django.views.generic.base import View, TemplateView
 
 from booking.forms import ReservationConnectionForm
 from booking.models import Course, BookingInterval, ReservationInterval, ReservationConnection
@@ -107,6 +107,8 @@ class CourseCoordinatorTable(StudentTable):
             if context['available_rintervals_count'] != 0 else 0
         context['max_studass_percent'] = round(context['full_bi_count'] / context['available_bintervals_count'] * 100) \
             if context['available_bintervals_count'] != 0 else 0
+
+        return context
 
 
 class CreateReservationConnection(UserPassesTestMixin, FormView):
@@ -212,18 +214,30 @@ class ReservationList(UserPassesTestMixin, ListView):
             return self.get(request)
 
 
-class AssistantReservationList(UserPassesTestMixin, ListView):
+class AssistantReservationList(UserPassesTestMixin, TemplateView):
     template_name = 'booking/assistant_reservation_list.html'
-
-    def get_queryset(self):
-        return BookingInterval.objects.filter(assistants=self.request.user.id)
-
-    def get_queryset_students(self):
-        return ReservationConnection.objects.filter(assistants=self.request.user.id)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context.update({'days' : list(calendar.day_name)[0:5]})
+        bis = BookingInterval.objects.filter(assistants=self.request.user)
+        booking_intervals = []
+        for booking_interval in bis:
+            reservation_intervals = booking_interval.reservation_intervals.all()
+            booking_intervals.append(
+                {
+                    'booking_interval': booking_interval,
+                    'reservation_intervals': [
+                        {
+                            'reservation_interval': reservation_interval,
+                            'connection': reservation_interval.connections.filter(assistant=self.request.user).first(),
+                        }
+                        for reservation_interval in reservation_intervals],
+
+                }
+            )
+        context.update({
+            'booking_intervals': booking_intervals
+        })
         return context
 
     def test_func(self):
