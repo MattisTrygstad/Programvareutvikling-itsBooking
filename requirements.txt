@@ -2,3 +2,4 @@ django==2.1.*
 faker
 coverage
 pillow
+requests

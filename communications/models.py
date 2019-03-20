@@ -4,7 +4,10 @@ from booking.models import Course
 
 
 def get_avatar_image_path(instance, filename):
-    return f'avatars/user_{instance.student.id}/{filename}/'
+    path = f'avatars/user_{instance.user.username}_{instance.user.id}/{filename}'
+    if filename[:-3] != 'png':
+        path += 'png'
+    return path
 
 
 class Announcement(models.Model):
@@ -39,5 +42,6 @@ class Avatar(models.Model):
         on_delete=models.CASCADE,
     )
     image = models.ImageField(
+        blank=True,
         upload_to=get_avatar_image_path,
     )

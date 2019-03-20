@@ -1,5 +1,7 @@
 import random
-import urllib
+from io import BytesIO
+
+import requests
 
 from faker import Faker
 
@@ -8,6 +10,18 @@ from django.core import management
 
 from booking.models import Course, ReservationConnection
 from communications.models import Avatar
+
+
+def set_user_avatar(user):
+    print("getting image data...")
+    response = requests.get('http://188.166.8.84:8000/')
+    image = BytesIO(response.content)
+    a = Avatar.objects.create(user=user)
+    a.image.save('dog', image, True)
+    print(
+        f'{user} avatar set'
+    )
+
 
 
 def setup_course(course, cc):
@@ -53,9 +67,7 @@ def generate_users(group, group_list, number):
         group_list.append(u)
         u.save()
 
-        image = urllib.urlretrieve('http://188.166.8.84:8000/')
-        Avatar.objects.create(user=u, image=image)
-
+        set_user_avatar(u)
 
 # flush db
 management.call_command('flush', verbosity=0, interactive=False)
@@ -82,9 +94,9 @@ assistants = []
 ccs = []
 
 print("Generating users...")
-generate_users(g_students, students, 3)
-generate_users(g_assistants, assistants, 8)
-generate_users(g_ccs, ccs, 2)
+generate_users(g_students, students, 2)
+generate_users(g_assistants, assistants, 3)
+generate_users(g_ccs, ccs, 1)
 
 
 # create courses
