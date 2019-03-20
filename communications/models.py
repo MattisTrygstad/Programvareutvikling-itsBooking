@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
-from booking.models import Course
 from django.utils import timezone
+
+from booking.models import Course
+
 
 
 class Announcement(models.Model):
@@ -13,14 +15,13 @@ class Announcement(models.Model):
         related_name='announcements',
         on_delete=models.CASCADE,
     )
+    course = models.ForeignKey(
+        Course,
+        related_name='announcement',
+        on_delete=models.CASCADE,
+    )
+    timestamp = models.DateTimeField(default=timezone.now)
 
-course = models.ForeignKey(
-    Course,
-    related_name='announcement',
-    on_delete=models.CASCADE,
-)
-timestamp = models.DateTimeField(auto_now_add=True);
 
-
-def __str__(self):
-    return self.title
+    def __str__(self):
+        return self.title
