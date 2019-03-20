@@ -1,10 +1,13 @@
 import random
+import urllib
+
 from faker import Faker
 
 from django.contrib.auth.models import Group, User
 from django.core import management
 
 from booking.models import Course, ReservationConnection
+from communications.models import Avatar
 
 
 def setup_course(course, cc):
@@ -22,18 +25,19 @@ def setup_course(course, cc):
     for bi in course.booking_intervals.all():
         registered_assistants = bi.assistants.all()
         if not registered_assistants:
-           continue
+            continue
 
         for ri in bi.reservation_intervals.all():
             possible_students = list.copy(students)
             for i in range(bi.assistants.all().count()):
-                r = random.randint(1,4)
+                r = random.randint(1, 4)
                 # 25 % chance of registering a student.
                 if r != 1:
                     continue
                 student = random.choice(possible_students)
                 possible_students.remove(student)
-                ReservationConnection.objects.create(reservation_interval = ri, student = student)
+                ReservationConnection.objects.create(reservation_interval=ri, student=student)
+
 
 def generate_users(group, group_list, number):
     username = str(group)[:-1]
@@ -48,6 +52,9 @@ def generate_users(group, group_list, number):
         u.groups.add(group)
         group_list.append(u)
         u.save()
+
+        image = urllib.urlretrieve('http://188.166.8.84:8000/')
+        Avatar.objects.create(user=u, image=image)
 
 
 # flush db
