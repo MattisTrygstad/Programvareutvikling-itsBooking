@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.mixins import UserPassesTestMixin
 
+
 class IndexView(TemplateView):
     template_name = 'communications/announcements.html'
 
@@ -20,18 +21,17 @@ class IndexView(TemplateView):
         context.update({'announcements': announcements,
                         'form': AnnouncementForm()})
         return context
-    
-
 
     def post(self, request, *args, **kwargs):
         # handle reviews through a separate view
         return CreateView.as_view()(request, *args, **kwargs)
 
+
 class CreateView(UpdateView):
     template_name = 'communications/announcements.html'
     model = Announcement
     form_class = AnnouncementForm
-    
+
     def get_success_url(self):
         return HttpResponseRedirect(
             reverse('announcements', kwargs={'slug': self.kwargs['slug']})

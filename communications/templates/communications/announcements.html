@@ -1,46 +1,48 @@
-
 {% extends 'itsBooking/base.html' %}
 {% load static %}
 {% block body %}
-<div class="uk-container uk-container-small">
-    <ul uk-accordion>
-        <li class="uk-closed">
-            <a class="uk-accordion-title" href="#">Nytt innlegg</a>
-            <div class="uk-accordion-content">
-                <form method="POST" id="{{ announcement.pk }}-form">
-                    {% csrf_token %}
-                    <fieldset class="uk-fieldset">
+    <div class="uk-container uk-container-small">
+        <ul uk-accordion>
+            <li class="uk-closed">
+                <a class="uk-accordion-title" href="#">Nytt innlegg</a>
+                <div class="uk-accordion-content">
+                    <form method="POST" id="{{ announcement.pk }}-form">
+                        {% csrf_token %}
+                        <fieldset class="uk-fieldset">
 
-                        <div class="uk-margin">
-                            {{ form }}
-                        </div>
+                            <div class="uk-margin">
+                                {{ form }}
+                            </div>
 
-                        <input type="submit" value="Send" class="uk-button uk-button-primary">
-                    </fieldset>
-                </form>
-            </div>
-        </li>
-    </ul>
-
-    {% for announcement in announcements %}
-        <article class="uk-comment">
-            <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
-                <div class="uk-width-auto">
-                    <img class="uk-comment-avatar" src="{% static "itsBooking/profile_pics/profile_picture.jpeg" %}" width="80" height="80" alt="">
+                            <input type="submit" value="Send" class="uk-button uk-button-primary">
+                        </fieldset>
+                    </form>
                 </div>
-                <div class="uk-width-expand">
-                    <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">{{ announcement.author.get_full_name }}</a></h4>
+            </li>
+        </ul>
+
+        {% for announcement in announcements %}
+            <article class="uk-comment">
+                <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+                    <div class="uk-width-auto">
+                        <img class="uk-comment-avatar" src="{% static "itsBooking/profile_pics/profile_picture.jpeg" %}"
+                             width="80" height="80" alt="">
+                    </div>
+                    <div class="uk-width-expand">
+                        <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset"
+                                                                         href="#">{{ announcement.author.get_full_name }}</a>
+                        </h4>
                         <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
                             <li><a href="#">{{ announcement.timestamp }}</a></li>
                             <li><a href="#">Reply</a></li>
                         </ul>
+                    </div>
+                </header>
+                <div class="uk-comment-body">
+                    <p>{{ announcement.content }}</p>
                 </div>
-            </header>
-            <div class="uk-comment-body">
-                <p>{{ announcement.content }}</p>
-            </div>
-        </article>
-    {% endfor %}
-</div>
+            </article>
+        {% endfor %}
+    </div>
 
 {% endblock %}
