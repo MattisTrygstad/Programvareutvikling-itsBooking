@@ -1,8 +1,8 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import CreateView, TemplateView, ListView
+from django.views.generic import CreateView, TemplateView, ListView, DeleteView
 
 from booking.models import Course
 from communications.models import Announcement
@@ -44,3 +44,17 @@ class CreateAnnouncementView(CreateView):
         )
         announcement.save()
         return self.get_success_url()
+
+class DeleteAnnouncementView(DeleteView):
+    model = Announcement
+    def get_success_url(self):
+        return HttpResponseRedirect(
+        reverse('announcements', kwargs={'slug': self.kwargs['slug']})
+    )
+    def get_object(self, queryset=None):
+        """ Hook to ensure object is created by request.user """
+        announcement = super(DeleteAnnouncementView, self).get_object()
+        if not announcement.author == self.request.user:
+            raise Http404
+        return announcement
+

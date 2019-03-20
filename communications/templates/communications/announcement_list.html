@@ -29,17 +29,25 @@
                              width="80" height="80" alt="">
                     </div>
                     <div class="uk-width-expand">
-                        <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset"
-                                                                         href="#">{{ announcement.author.get_full_name }}</a>
+                        <h4 class="uk-comment-title uk-margin-remove">{{ announcement.title }}
                         </h4>
                         <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                            <li><a href="#">{{ announcement.author.get_full_name }}</a></li>
                             <li><a href="#">{{ announcement.timestamp }}</a></li>
                             <li><a href="#">Reply</a></li>
+                            {% if request.user == announcement.author %}
+                                <li>
+                                    <form method="POST" action="{% url 'delete_announcement' pk=announcement.pk slug=announcement.course.slug %}">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Slett">
+                                    </form>
+                                </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </header>
                 <div class="uk-comment-body">
-                    <p>{{ announcement.content }}</p>
+                    <p>{{ announcement.content }}</p><br>
                 </div>
             </article>
         {% endfor %}
