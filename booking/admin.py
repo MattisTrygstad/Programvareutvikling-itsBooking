@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, BookingInterval, ReservationInterval, ReservationConnection
+from .models import Course, BookingInterval
 
 
 class CourseAdmin(admin.ModelAdmin):
@@ -10,11 +10,10 @@ class BookingIntervalAdmin(admin.ModelAdmin):
     readonly_fields = ('nk', 'day', 'start', 'end', 'course', )
 
 
-class ReservationIntervalAdmin(admin.ModelAdmin):
+class ReservationAdmin(admin.ModelAdmin):
     readonly_fields = ('booking_interval', )
 
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(BookingInterval, BookingIntervalAdmin)
-admin.site.register(ReservationInterval, ReservationIntervalAdmin)
-admin.site.register(ReservationConnection)
+# admin.site.register(Reservation, ReservationAdmin)
