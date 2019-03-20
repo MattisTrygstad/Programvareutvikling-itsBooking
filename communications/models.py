@@ -19,7 +19,7 @@ course = models.ForeignKey(
     related_name='announcement',
     on_delete=models.CASCADE,
 )
-timestamp = models.DateTimeField(default=timezone.now());
+timestamp = models.DateTimeField(auto_now_add=True);
 
 
 def __str__(self):
