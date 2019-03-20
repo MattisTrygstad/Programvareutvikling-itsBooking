@@ -1,18 +1,12 @@
-from django.shortcuts import render
-from communications.models import Announcement
-from django.utils import timezone
-from django.views.generic import CreateView, ListView, UpdateView, TemplateView
-from django.views import generic
-from django.contrib.auth.models import User
-from django.db import models
-from .forms import AnnouncementForm
-from django.views.generic.edit import FormView
+from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.utils import timezone
+from django.views.generic import CreateView, TemplateView
+from communications.models import Announcement
+from .forms import AnnouncementForm
 
 
-class IndexView(TemplateView):
+class AnnouncementView(TemplateView):
     template_name = 'communications/announcements.html'
 
     def get_context_data(self, **kwargs):
@@ -24,10 +18,9 @@ class IndexView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         # handle reviews through a separate view
-        return CreateView.as_view()(request, *args, **kwargs)
+        return CreateAnnouncementView.as_view()(request, *args, **kwargs)
 
-
-class CreateView(UpdateView):
+class CreateAnnouncementView(CreateView):
     template_name = 'communications/announcements.html'
     model = Announcement
     form_class = AnnouncementForm
@@ -40,5 +33,6 @@ class CreateView(UpdateView):
     def form_valid(self, form):
         announcement = form.save(commit=False)
         announcement.author = self.request.user
+        announcement.timestamp = timezone.now()
         announcement.save()
         return self.get_success_url()
