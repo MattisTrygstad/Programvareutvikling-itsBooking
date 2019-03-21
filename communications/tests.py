@@ -32,6 +32,13 @@ class AnnouncementViewTest(TestCase):
         self.cc_group = Group.objects.create(name='course_coordinators')
         self.user.groups.add(self.cc_group)
 
+    def _create_announcement(self):
+        return Announcement.objects.create(
+            title='test',
+            content='test',
+            author=self.user,
+            course=self.course)
+
     def test_no_announcement_list(self):
         """
         If no announcement_list exists, an appropriate message is displayed
@@ -46,27 +53,25 @@ class AnnouncementViewTest(TestCase):
         """
         The announcement_list page should display the announcement
         """
-        Announcement.objects.create(
-            title="Test announcement1",
-            content="heiehie",
-            author=self.user,
-            course=self.course)
+        self._create_announcement()
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertQuerysetEqual(
             response.context['announcement_list'].order_by('title'),
-            ['<Announcement: Test announcement1>']
+            ['<Announcement: test>']
         )
 
     def test_two_announcement_list(self):
         """
         The announcement_list page may display multiple announcement_list.
         """
-        Announcement.objects.create(title="Test announcement1", content="heiehie", author=self.user, course=self.course)
-        Announcement.objects.create(title="Test announcement2", content="heiehie", author=self.user, course=self.course)
+        self._create_announcement()
+        self._create_announcement()
+        # Announcement.objects.create(title="Test announcement1", content="heiehie", author=self.user, course=self.course)
+        # Announcement.objects.create(title="Test announcement2", content="heiehie", author=self.user, course=self.course)
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertQuerysetEqual(
             response.context['announcement_list'].order_by('title'),
-            ['<Announcement: Test announcement1>', '<Announcement: Test announcement2>']
+            ['<Announcement: test>', '<Announcement: test>']
         )
 
     def test_announcements_list_page_testfunc(self):
@@ -78,12 +83,12 @@ class AnnouncementViewTest(TestCase):
         # forbidden for users who are not cc or assistant
         Group.objects.get(name="course_coordinators").user_set.remove(self.user)
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(response.status_code, 403)
 
         # assistants have access to the page, but not the form
         self.user.groups.add(Group.objects.create(name="assistants"))
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, 200)
         with self.assertRaises(KeyError):
             response.context['form']  # keyError proves the form is not included in the response
 
@@ -97,7 +102,7 @@ class AnnouncementViewTest(TestCase):
         ), {'title': 'Test Announcement', 'content': 'Test content'}
         )
         self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet []>')
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(response.status_code, 403)
 
     def test_create_announcement_success(self):
         """
@@ -107,5 +112,33 @@ class AnnouncementViewTest(TestCase):
             'announcements', kwargs={'slug': self.course.slug}
         ), {'title': 'Test Announcement', 'content': 'Test content'}
         )
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet [<Announcement: Test Announcement>]>', )
+
+    def test_delete_announcement_success(self):
+        """
+        The course coordinator of a course should be able to delete announcements
+        """
+        # Set user to be the course coordinater
+        self.course.course_coordinator = self.user
+        self.course.save()
+
+        # Create announcement to delete
+        announcement = self._create_announcement()
+
+        response = self.client.post(
+            reverse('delete_announcement', kwargs={'slug': self.course.slug, 'pk': announcement.pk}))
+        self.assertEqual(response.status_code, 302)
+        self.assertIs(Announcement.objects.filter(pk=announcement.pk).exists(), False)
+
+    def test_delete_announcement_deny_not_course_coordinator(self):
+        """
+        Users who are not course coordinator of the course should not be able to delete announcements
+        """
+        # self.course has no course coordinator
+        # Create announcement to delete
+        announcement = self._create_announcement()
+        response = self.client.post(
+            reverse('delete_announcement', kwargs={'slug': self.course.slug, 'pk': announcement.pk}))
+        self.assertEqual(response.status_code, 403)
+        self.assertIs(Announcement.objects.filter(pk=announcement.pk).exists(), True)

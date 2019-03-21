@@ -2,7 +2,7 @@
     <li class="uk-closed">
         <a class="uk-accordion-title" href="#">Nytt innlegg</a>
         <div class="uk-accordion-content">
-            <form method="POST" id="{{ announcement.pk }}-form">
+            <form method="POST">
                 {% csrf_token %}
                 <fieldset class="uk-fieldset">
                     {{ form }}
