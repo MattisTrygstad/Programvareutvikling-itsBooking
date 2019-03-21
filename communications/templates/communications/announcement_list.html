@@ -1,29 +1,29 @@
 {% extends 'itsBooking/base.html' %}
 {% load static %}
+{% load helpers %}
+
+
 {% block body %}
+
     <div class="uk-container uk-container-small">
-        <ul uk-accordion>
-            <li class="uk-closed">
-                <a class="uk-accordion-title" href="#">Nytt innlegg</a>
-                <div class="uk-accordion-content">
-                    <form method="POST" id="{{ announcement.pk }}-form">
-                        {% csrf_token %}
-                        <fieldset class="uk-fieldset">
-
-                            <div class="uk-margin">
-                                {{ form }}
-                            </div>
-
-                            <input type="submit" value="Send" class="uk-button uk-button-primary">
-                        </fieldset>
-                    </form>
-                </div>
-            </li>
-        </ul>
-
+        {% if request.user|in_group:"course_coordinators" %}
+            {% include 'communications/announcement_form.html' %}
+        {% endif %}
         {% for announcement in announcement_list %}
             {% include 'communications/announcement_cards.html' %}
         {% endfor %}
     </div>
+
+    {% include 'communications/announcement_delete_modal.html' %}
+
+    <script>
+
+        function set_confirm_delete_modal_action(elem) {
+            let url = "{% url 'delete_announcement' pk=1 slug=course.slug %}";
+            url = url.split('/').slice(0, -2).join('/') + '/' + elem.id + '/';
+            document.getElementById("confirm-delete-modal-form").setAttribute("action", url);
+        }
+
+    </script>
 
 {% endblock %}
