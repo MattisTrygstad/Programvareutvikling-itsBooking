@@ -66,8 +66,6 @@ class AnnouncementViewTest(TestCase):
         """
         self._create_announcement()
         self._create_announcement()
-        # Announcement.objects.create(title="Test announcement1", content="heiehie", author=self.user, course=self.course)
-        # Announcement.objects.create(title="Test announcement2", content="heiehie", author=self.user, course=self.course)
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertQuerysetEqual(
             response.context['announcement_list'].order_by('title'),
