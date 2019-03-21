@@ -49,8 +49,10 @@
 
 
     function set_confirm_delete_modal_action(element) {
-        let action = {% url 'delete_announcement' pk=0 %}
-
+        let action = {% url 'delete_announcement' pk=0 %};
+        // set correct pk in url
+        action = action.split('/').slice(0, -1).join('/') + element.id;
+        document.getElementById("confirm-delete-modal-form");
     }
 
 </script>
