@@ -42,7 +42,7 @@ class AnnouncementViewTest(TestCase):
         self.assertQuerysetEqual(response.context['announcement_list'], [],
                                  msg="There should not be announcement_list in context")
 
-    def test_one_annoucement(self):
+    def test_one_announcement(self):
         """
         The announcement_list page should display the announcement
         """
@@ -65,6 +65,7 @@ class AnnouncementViewTest(TestCase):
             ['<Announcement: Test announcement1>', '<Announcement: Test announcement2>']
         )
 
+
     def test_announcements_list_page_testfunc(self):
         # logged in as cc
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
@@ -82,3 +83,27 @@ class AnnouncementViewTest(TestCase):
         self.assertEqual(200, response.status_code)
         with self.assertRaises(KeyError):
             response.context['form']  # keyError proves the form is not included in the response
+
+    def test_create_announcement_deny_not_course_coordinator(self):
+        """
+        It should not be possible to create an announcement if you are not a course coordinator
+        """
+        self.cc_group.user_set.remove(self.user)
+        response = self.client.post(reverse(
+            'announcements', kwargs={'slug': self.course.slug}
+            ), {'title': 'Test Announcement', 'content' : 'Test content'}
+        )
+        self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet []>')
+        self.assertEqual(403, response.status_code)
+
+    def test_create_announcement_success(self):
+        """
+        It should be possible to create an announcemnt if you are a course coordinator
+        """
+        response = self.client.post(reverse(
+            'announcements', kwargs={'slug': self.course.slug}
+            ), {'title': 'Test Announcement', 'content': 'Test content'}
+        )
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet [<Announcement: Test Announcement>]>',)
+
