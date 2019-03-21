@@ -21,8 +21,11 @@ class AnnouncementListView(UserPassesTestMixin, ListView):
         context = super().get_context_data()
         if user_in_group(self.request.user, "course_coordinators"):
             context.update({
-                'form': AnnouncementForm()
+                'form': AnnouncementForm(),
             })
+        context.update({
+            'course': get_object_or_404(Course, slug=self.kwargs['slug'])
+        })
         return context
 
     def post(self, request, *args, **kwargs):
