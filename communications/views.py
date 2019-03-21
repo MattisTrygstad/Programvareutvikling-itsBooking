@@ -48,7 +48,6 @@ class CreateAnnouncementView(CreateView):
     def form_valid(self, form):
         announcement = form.save(commit=False)
         announcement.author = self.request.user
-        announcement.timestamp = timezone.now()
         announcement.course = get_object_or_404(
             Course,
             slug=self.kwargs['slug']

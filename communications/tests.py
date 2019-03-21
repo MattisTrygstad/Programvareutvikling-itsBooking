@@ -64,3 +64,21 @@ class AnnouncementViewTest(TestCase):
             response.context['announcements'].order_by('title'),
             ['<Announcement: Test announcement1>', '<Announcement: Test announcement2>']
         )
+
+    def test_announcements_list_page_testfunc(self):
+        # logged in as cc
+        response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
+        self.assertEqual(200, response.status_code)
+        self.assertIsNotNone(response.context['form'], "AnnouncementForm must be included for ccs")
+
+        # forbidden for users who are not cc or assistant
+        Group.objects.get(name="course_coordinators").user_set.remove(self.user)
+        response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
+        self.assertEqual(403, response.status_code)
+
+        # assistants have access to the page, but not the form
+        self.user.groups.add(Group.objects.create(name="assistants"))
+        response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
+        self.assertEqual(200, response.status_code)
+        with self.assertRaises(KeyError):
+            response.context['form']  # keyError proves the form is not included in the response

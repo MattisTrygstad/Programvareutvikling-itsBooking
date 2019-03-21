@@ -5,7 +5,6 @@ from django.utils import timezone
 from booking.models import Course
 
 
-
 class Announcement(models.Model):
     title = models.CharField(max_length=45)
     content = models.TextField(max_length=1500)
@@ -21,7 +20,6 @@ class Announcement(models.Model):
         on_delete=models.CASCADE,
     )
     timestamp = models.DateTimeField(default=timezone.now)
-
 
     def __str__(self):
         return self.title
