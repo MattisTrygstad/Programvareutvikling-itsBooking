@@ -1,26 +1,29 @@
 {% extends 'itsBooking/base.html' %}
 {% load static %}
+{% load helpers %}
 {% block body %}
+    
     <div class="uk-container uk-container-small">
-        <ul uk-accordion>
-            <li class="uk-closed">
-                <a class="uk-accordion-title" href="#">Nytt innlegg</a>
-                <div class="uk-accordion-content">
-                    <form method="POST" id="{{ announcement.pk }}-form">
-                        {% csrf_token %}
-                        <fieldset class="uk-fieldset">
+        {% if request.user|in_group:"course_coordinators" %}
+            <ul uk-accordion>
+                <li class="uk-closed">
+                    <a class="uk-accordion-title" href="#">Nytt innlegg</a>
+                    <div class="uk-accordion-content">
+                        <form method="POST" id="{{ announcement.pk }}-form">
+                            {% csrf_token %}
+                            <fieldset class="uk-fieldset">
 
-                            <div class="uk-margin">
-                                {{ form }}
-                            </div>
+                                <div class="uk-margin">
+                                    {{ form }}
+                                </div>
 
-                            <input type="submit" value="Send" class="uk-button uk-button-primary">
-                        </fieldset>
-                    </form>
-                </div>
-            </li>
-        </ul>
-
+                                <input type="submit" value="Send" class="uk-button uk-button-primary">
+                            </fieldset>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        {% endif %}
         {% for announcement in announcement_list %}
             <article class="uk-comment">
                 <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
