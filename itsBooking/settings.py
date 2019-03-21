@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'itsBooking',
     'booking',
     'assignments',
+    'communications',
 ]
 
 MIDDLEWARE = [

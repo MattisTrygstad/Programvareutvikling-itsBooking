@@ -1,0 +1,33 @@
+{% load static %}
+
+<article class="uk-comment">
+    <header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+        <div class="uk-width-auto">
+            <img class="uk-comment-avatar" src="{% static "itsBooking/profile_pics/profile_picture.jpeg" %}"
+                 width="80" height="80" alt="">
+        </div>
+        <div class="uk-width-expand">
+            <h4 class="uk-comment-title uk-margin-remove">{{ announcement.title }}
+            </h4>
+            <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                <li><a href="#">{{ announcement.author.get_full_name }}</a></li>
+                <li><a href="#">{{ announcement.timestamp }}</a></li>
+                <li><a href="#">Svar</a></li>
+                {% if request.user == announcement.author %}
+                    <li>
+                        <!-- This is a button toggling the modal -->
+                        <button class="uk-button uk-button-small uk-button-default uk-margin-small-right"
+                                onclick="set_confirm_delete_modal_action(this)"
+                                type="button" uk-toggle="target: #modal-confirm-delete"
+                                id="{{ announcement.pk }}">
+                            Slett kunngjøring</button>
+
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </header>
+    <div class="uk-comment-body">
+        <p>{{ announcement.content }}</p><br>
+    </div>
+</article>

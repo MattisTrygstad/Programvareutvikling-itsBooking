@@ -1,0 +1,32 @@
+{% extends 'itsBooking/base.html' %}
+{% load static %}
+{% load helpers %}
+{% block body %}
+
+    <div class="uk-container uk-container-small">
+
+        {% if request.user|in_group:"course_coordinators" %}
+            {% include 'communications/announcement_form.html' %}
+        {% endif %}
+        {% for announcement in announcement_list %}
+           {% include 'communications/announcement_cards.html' %}
+        {% empty %}
+            <p> Ingen publiserte kunngjøringer</p>
+        {% endfor %}
+
+        {% include 'communications/announcement_delete_modal.html' %}
+
+    </div>
+
+
+<script>
+    let action = "{% url 'delete_announcement' pk=1 slug=course.slug %}";
+    function set_confirm_delete_modal_action(element) {
+        // set correct pk in url
+        action = action.split('/').slice(0, -2).join('/') + '/' + element.id + '/';
+        console.log(action);
+        document.getElementById("confirm-delete-modal-form").setAttribute("action", action);
+    }
+</script>
+
+{% endblock %}
