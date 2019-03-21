@@ -2,8 +2,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils import timezone
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, DeleteView
 
 from booking.models import Course
 from communications.models import Announcement
@@ -54,3 +53,13 @@ class CreateAnnouncementView(CreateView):
         )
         announcement.save()
         return self.get_success_url()
+
+
+class DeleteAnnouncementView(UserPassesTestMixin, DeleteView):
+    model = Announcement
+
+    def test_func(self):
+        return self.request.user == self.get_object().course.course_coordinator
+
+    def get_success_url(self):
+        return reverse('announcements', kwargs={'slug': self.kwargs['slug']})
