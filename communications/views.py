@@ -47,10 +47,10 @@ class CreateAnnouncementView(CreateView):
 
 class DeleteAnnouncementView(DeleteView):
     model = Announcement
+    
     def get_success_url(self):
-        return HttpResponseRedirect(
-        reverse('announcements', kwargs={'slug': self.kwargs['slug']})
-    )
+        return reverse('announcements', kwargs={'slug': self.kwargs['slug']})
+
     def get_object(self, queryset=None):
         """ Hook to ensure object is created by request.user """
         announcement = super(DeleteAnnouncementView, self).get_object()

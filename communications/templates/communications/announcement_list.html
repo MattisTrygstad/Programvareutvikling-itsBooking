@@ -50,6 +50,8 @@
                     <p>{{ announcement.content }}</p><br>
                 </div>
             </article>
+        {% empty %}
+            <p> Ingen publiserte kunngjøringer</p>
         {% endfor %}
     </div>
 
