@@ -2,24 +2,11 @@
 {% load static %}
 {% load helpers %}
 {% block body %}
-    
+
     <div class="uk-container uk-container-small">
 
         {% if request.user|in_group:"course_coordinators" %}
-            <ul uk-accordion>
-                <li class="uk-closed">
-                    <a class="uk-accordion-title" href="#">Nytt innlegg</a>
-                    <div class="uk-accordion-content">
-                        <form method="POST" id="{{ announcement.pk }}-form">
-                            {% csrf_token %}
-                            <fieldset class="uk-fieldset">
-                                {{ form }}
-                                <input type="submit" value="Send" class="uk-button uk-button-primary">
-                            </fieldset>
-                        </form>
-                    </div>
-                </li>
-            </ul>
+            {% include 'communications/announcement_form.html' %}
         {% endif %}
         {% for announcement in announcement_list %}
            {% include 'communications/announcement_cards.html' %}
@@ -27,34 +14,19 @@
             <p> Ingen publiserte kunngjøringer</p>
         {% endfor %}
 
+        {% include 'communications/announcement_delete_modal.html' %}
 
-    </div>
-        <div id="modal-confirm-delete" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <h2 class="uk-modal-title">Slett kunngjøring?</h2>
-                <p>Er du sikker på at du ønsker å slette denne kunngjøringen og alle tilhørende kommentarer? </p>
-                <div class="uk-modal-footer uk-text-right">
-                    <form method="POST" action="" id="confirm-delete-modal-form">
-                        {% csrf_token %}
-                        <button class="uk-button uk-button-default uk-modal-close" type="button">Avbryt</button>
-                        <button class="uk-button uk-button-primary" type="submit">Bekreft</button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
 
 <script>
-
-
+    let action = "{% url 'delete_announcement' pk=1 slug=course.slug %}";
     function set_confirm_delete_modal_action(element) {
-        let action = {% url 'delete_announcement' pk=0 %};
         // set correct pk in url
-        action = action.split('/').slice(0, -1).join('/') + element.id;
-        document.getElementById("confirm-delete-modal-form");
+        action = action.split('/').slice(0, -2).join('/') + '/' + element.id + '/';
+        console.log(action);
+        document.getElementById("confirm-delete-modal-form").setAttribute("action", action);
     }
-
 </script>
 
 {% endblock %}
