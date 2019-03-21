@@ -37,13 +37,26 @@
                         <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
                             <li><a href="#">{{ announcement.author.get_full_name }}</a></li>
                             <li><a href="#">{{ announcement.timestamp }}</a></li>
-                            <li><a href="#">Reply</a></li>
+                            <li><a href="#">Svar</a></li>
                             {% if request.user == announcement.author %}
                                 <li>
-                                    <form method="POST" action="{% url 'delete_announcement' pk=announcement.pk slug=announcement.course.slug %}">
-                                        {% csrf_token %}
-                                        <input type="submit" value="Slett">
-                                    </form>
+                                    <!-- This is a button toggling the modal -->
+                                    <button class="uk-button uk-button-small uk-button-default uk-margin-small-right" type="button" uk-toggle="target: #modal-example">Slett kunngjøring</button>
+
+                                    <!-- This is the modal -->
+                                    <div id="modal-example" uk-modal>
+                                        <div class="uk-modal-dialog uk-modal-body">
+                                            <h2 class="uk-modal-title">Slett kunngjøring</h2>
+                                            <p>Er du sikker på at du ønsker å slette denne kunngjøringen og alle tilhørende kommentarer? </p>
+                                            <div class="uk-modal-footer uk-text-right">
+                                                <form method="POST" action="{% url 'delete_announcement' pk=announcement.pk slug=announcement.course.slug %}">
+                                                    {% csrf_token %}
+                                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Avbryt</button>
+                                                    <button class="uk-button uk-button-primary" type="submit">Bekreft</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </li>
                             {% endif %}
                         </ul>
