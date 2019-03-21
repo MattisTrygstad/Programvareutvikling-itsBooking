@@ -32,35 +32,37 @@ class AnnouncementViewTest(TestCase):
         self.cc_group = Group.objects.create(name='course_coordinators')
         self.user.groups.add(self.cc_group)
 
-    def test_no_announcements(self):
+    def test_no_announcement_list(self):
         """
-        If no announcements exists, an appropriate message is displayed
+        If no announcement_list exists, an appropriate message is displayed
         """
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "Ingen kunngjøringer tilgjengelig")
-        self.assertQuerysetEqual(response.context['announcements'], [],
-                                 msg="There should not be announcements in context")
+        self.assertQuerysetEqual(response.context['announcement_list'], [],
+                                 msg="There should not be announcement_list in context")
 
     def test_one_annoucement(self):
         """
-        The announcements page should display the announcement
+        The announcement_list page should display the announcement
         """
         Announcement.objects.create(title="Test announcement1", content="heiehie", author=self.user, course=self.course)
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertQuerysetEqual(
-            response.context['announcements'].order_by('title'),
+            response.context['announcement_list'].order_by('title'),
             ['<Announcement: Test announcement1>']
         )
 
-    def test_two_announcements(self):
+    def test_two_announcement_list(self):
         """
-        The announcements page may display multiple announcements.
+        The announcement_list page may display multiple announcement_list.
         """
         Announcement.objects.create(title="Test announcement1", content="heiehie", author=self.user, course=self.course)
         Announcement.objects.create(title="Test announcement2", content="heiehie", author=self.user, course=self.course)
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertQuerysetEqual(
-            response.context['announcements'].order_by('title'),
+            response.context['announcement_list'].order_by('title'),
             ['<Announcement: Test announcement1>', '<Announcement: Test announcement2>']
         )
+
+
