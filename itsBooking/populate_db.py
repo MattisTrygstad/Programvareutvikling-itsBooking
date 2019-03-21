@@ -1,10 +1,27 @@
 import random
+from io import BytesIO
+
+import requests
+
 from faker import Faker
 
 from django.contrib.auth.models import Group, User
 from django.core import management
 
 from booking.models import Course, ReservationConnection
+from communications.models import Avatar
+
+
+def set_user_avatar(user):
+    print("getting image data...")
+    response = requests.get('http://188.166.8.84:8000/')
+    image = BytesIO(response.content)
+    a = Avatar.objects.create(user=user)
+    a.image.save('dog', image, True)
+    print(
+        f'{user} avatar set'
+    )
+
 
 
 def setup_course(course, cc):
@@ -22,18 +39,19 @@ def setup_course(course, cc):
     for bi in course.booking_intervals.all():
         registered_assistants = bi.assistants.all()
         if not registered_assistants:
-           continue
+            continue
 
         for ri in bi.reservation_intervals.all():
             possible_students = list.copy(students)
             for i in range(bi.assistants.all().count()):
-                r = random.randint(1,4)
+                r = random.randint(1, 4)
                 # 25 % chance of registering a student.
                 if r != 1:
                     continue
                 student = random.choice(possible_students)
                 possible_students.remove(student)
-                ReservationConnection.objects.create(reservation_interval = ri, student = student)
+                ReservationConnection.objects.create(reservation_interval=ri, student=student)
+
 
 def generate_users(group, group_list, number):
     username = str(group)[:-1]
@@ -49,6 +67,7 @@ def generate_users(group, group_list, number):
         group_list.append(u)
         u.save()
 
+        set_user_avatar(u)
 
 # flush db
 management.call_command('flush', verbosity=0, interactive=False)
@@ -75,9 +94,9 @@ assistants = []
 ccs = []
 
 print("Generating users...")
-generate_users(g_students, students, 3)
-generate_users(g_assistants, assistants, 8)
-generate_users(g_ccs, ccs, 2)
+generate_users(g_students, students, 2)
+generate_users(g_assistants, assistants, 3)
+generate_users(g_ccs, ccs, 1)
 
 
 # create courses
