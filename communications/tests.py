@@ -46,7 +46,11 @@ class AnnouncementViewTest(TestCase):
         """
         The announcement_list page should display the announcement
         """
-        Announcement.objects.create(title="Test announcement1", content="heiehie", author=self.user, course=self.course)
+        Announcement.objects.create(
+            title="Test announcement1",
+            content="heiehie",
+            author=self.user,
+            course=self.course)
         response = self.client.get(reverse('announcements', kwargs={'slug': self.course.slug}))
         self.assertQuerysetEqual(
             response.context['announcement_list'].order_by('title'),
@@ -64,7 +68,6 @@ class AnnouncementViewTest(TestCase):
             response.context['announcement_list'].order_by('title'),
             ['<Announcement: Test announcement1>', '<Announcement: Test announcement2>']
         )
-
 
     def test_announcements_list_page_testfunc(self):
         # logged in as cc
@@ -91,7 +94,7 @@ class AnnouncementViewTest(TestCase):
         self.cc_group.user_set.remove(self.user)
         response = self.client.post(reverse(
             'announcements', kwargs={'slug': self.course.slug}
-            ), {'title': 'Test Announcement', 'content' : 'Test content'}
+        ), {'title': 'Test Announcement', 'content': 'Test content'}
         )
         self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet []>')
         self.assertEqual(403, response.status_code)
@@ -102,8 +105,7 @@ class AnnouncementViewTest(TestCase):
         """
         response = self.client.post(reverse(
             'announcements', kwargs={'slug': self.course.slug}
-            ), {'title': 'Test Announcement', 'content': 'Test content'}
+        ), {'title': 'Test Announcement', 'content': 'Test content'}
         )
         self.assertEqual(302, response.status_code)
-        self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet [<Announcement: Test Announcement>]>',)
-
+        self.assertEqual(Announcement.objects.all().__str__(), '<QuerySet [<Announcement: Test Announcement>]>', )
