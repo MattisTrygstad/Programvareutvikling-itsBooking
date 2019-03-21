@@ -9,8 +9,71 @@ from django.urls import reverse, reverse_lazy
 from .models import Course, ReservationConnection, BookingInterval
 
 
-class CourseViewTest(TestCase):
+class StudentTableViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.course = Course.objects.create(title='algdat', course_code='tdt4125')
+        self.username = 'STUDENT'
+        self.password = '123'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.client.login(username=self.username, password=self.password)
+        self.student_group = Group.objects.create(name='students')
+        self.user.groups.add(self.student_group)
+        self.response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
 
+    def test_context_data_intervals(self):
+        """
+        Context['interval'] should should contain elements equal the number of booking intervals each day
+        """
+        self.assertEqual(200, self.response.status_code)
+        self.assertEqual(len(self.response.context['intervals']), len(self.course.booking_intervals.all()) / 5,
+                         msg="context['interval'] "
+                             "does not contain the elements equal to the number of booking intervals each day")
+
+    def test_context_data_form(self):
+        self.assertEqual(200, self.response.status_code)
+        self.assertIsNotNone(self.response.context['form'])
+
+
+class AssistantTableViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.course = Course.objects.create(title='algdat', course_code='tdt4125')
+        self.username = 'ASSISTANT'
+        self.password = '123'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.client.login(username=self.username, password=self.password)
+        self.assistants_group = Group.objects.create(name='assistants')
+        self.user.groups.add(self.assistants_group)
+        self.response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
+
+    def test_context_data_intervals(self):
+        """
+        Context['interval'] should should contain elements equal the number of booking intervals each day
+        """
+        self.assertEqual(200, self.response.status_code)
+        self.assertEqual(len(self.response.context['intervals']), len(self.course.booking_intervals.all()) / 5,
+                         msg="context['interval'] "
+                             "does not contain the elements equal to the number of booking intervals each day")
+
+
+class CourseCoordinatorTableViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.course = Course.objects.create(title='algdat', course_code='tdt4125')
+        self.username = 'STUDENT'
+        self.password = '123'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.client.login(username=self.username, password=self.password)
+        self.cc_group = Group.objects.create(name='course_coordinators')
+        self.user.groups.add(self.cc_group)
+        self.response = self.client.get(reverse('course_detail', kwargs={'slug': self.course.slug}))
+
+    def test_context_data(self):
+        self.assertIsNotNone(self.response.context)
+
+
+class CourseViewTest(TestCase):
     def setUp(self):
         self.course = Course.objects.create(title='algdat', course_code='tdt4125')
 
@@ -59,14 +122,14 @@ class ReservationTest(TestCase):
         self.student_group.user_set.remove(self.user)
         response = self.client.post(reverse(
             'course_detail', kwargs={'slug': self.course.slug}
-            ), {'booking_interval_nk': self.course.booking_intervals.first().nk, 'reservation_index': 0}
+        ), {'booking_interval_nk': self.course.booking_intervals.first().nk, 'reservation_index': 0}
         )
         self.assertEqual(403, response.status_code)
 
     def test_make_reservation_deny_not_available(self):
         response = self.client.post(reverse(
             'course_detail', kwargs={'slug': self.course.slug}
-            ), {'reservation_pk': self.course.booking_intervals.first().reservation_intervals.first().pk}
+        ), {'reservation_pk': self.course.booking_intervals.first().reservation_intervals.first().pk}
         )
         messages = list(response.context['messages'])
         self.assertEqual(40, messages[0].level)  # level:40 => error
@@ -145,9 +208,9 @@ class ReservationTest(TestCase):
         self.course.booking_intervals.first().assistants.add(assistant_user)
         self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
         self.connection = ReservationConnection.objects.create(reservation_interval=self.reservation,
-            student=self.user,
-            assistant=assistant_user
-        )
+                                                               student=self.user,
+                                                               assistant=assistant_user
+                                                               )
         response = self.client.post(reverse_lazy(
             'student_reservation_list'
         ), {'reservation_connection_pk': self.connection.pk}
@@ -155,10 +218,30 @@ class ReservationTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertFalse(ReservationConnection.objects.filter(pk=self.connection.pk).exists())
 
-
+    def test_ReservationList_post_deny(self):
+        """
+        Student should not be able to delete other students reservations
+        """
+        assistant_user = User.objects.create_user(username='ASSISTANT', password='123')
+        assistant_group = Group.objects.create(name='assistants')
+        assistant_group.user_set.add(assistant_user)
+        student_user = User.objects.create_user(username='STUDENT1', password='123')
+        self.student_group.user_set.add(student_user)
+        self.course.booking_intervals.first().min_num_assistants = 1
+        self.course.booking_intervals.first().assistants.add(assistant_user)
+        self.reservation = self.course.booking_intervals.first().reservation_intervals.first()
+        self.connection = ReservationConnection.objects.create(reservation_interval=self.reservation,
+                                                               student=student_user,
+                                                               assistant=assistant_user
+                                                               )
+        response = self.client.post(reverse_lazy(
+            'student_reservation_list'
+        ), {'reservation_connection_pk': self.connection.pk}
+        )
+        self.assertEqual(403, response.status_code)
+        self.assertTrue(ReservationConnection.objects.filter(pk=self.connection.pk).exists())
 
 class CourseModelTest(TestCase):
-
     def test_create_course(self):
         course = Course.objects.create(title="algdat", course_code="tdt4125")
         self.assertEqual(course.title, "algdat")
@@ -182,7 +265,6 @@ class CourseModelTest(TestCase):
 
 
 class MakeAssistantsAvailableTest(TestCase):
-
     def setUp(self):
         self.client = Client()
         self.course = Course.objects.create(title='algdat', course_code='tdt4125')
