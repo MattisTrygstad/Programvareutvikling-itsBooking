@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
+
 from booking.models import Course
 
 
@@ -28,9 +30,7 @@ class Announcement(models.Model):
         related_name='announcement',
         on_delete=models.CASCADE,
     )
-    timestamp = models.DateTimeField(
-        auto_now_add=True
-    )
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
